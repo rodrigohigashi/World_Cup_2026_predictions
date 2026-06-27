@@ -1,0 +1,19 @@
+# Dados — baixados automaticamente pelos scripts
+data/
+
+# Notebook executado (gerado, não é source)
+copa2026_executado.ipynb
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+Thumbs.db
