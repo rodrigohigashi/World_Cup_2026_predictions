@@ -2,7 +2,7 @@ import plotly.graph_objects as go
 import streamlit as st
 import pandas as pd
 import numpy as np
-from components.flags import label, get_flag, EMOJI_FONT
+from components.flags import label, get_flag, get_flag_url, get_team_code, EMOJI_FONT
 from components.theme import (
     BG1, BG2, BG3, GOLD, GREEN, BLUE, T1, T2, T3, BORDER,
     apply_theme, section_header_html, caption_html,
@@ -80,8 +80,12 @@ def _h2h_html(team_a: str, team_b: str, model, elo_a: float, elo_b: float) -> st
     pw = p[0] * 100
     pd_ = p[1] * 100
     pa = p[2] * 100
-    fa = get_flag(team_a)
-    fb = get_flag(team_b)
+    url_a = get_flag_url(team_a)
+    url_b = get_flag_url(team_b)
+    code_a = get_team_code(team_a)
+    code_b = get_team_code(team_b)
+    img_a = f'<img src="{url_a}" style="width:56px;height:auto;display:block">' if url_a else code_a
+    img_b = f'<img src="{url_b}" style="width:56px;height:auto;display:block">' if url_b else code_b
 
     def bar_row(pct, color, row_label):
         return f"""
@@ -100,7 +104,7 @@ def _h2h_html(team_a: str, team_b: str, model, elo_a: float, elo_b: float) -> st
   <div style="display:grid;grid-template-columns:1fr auto 1fr;
     align-items:center;gap:1rem;margin-bottom:1.25rem">
     <div>
-      <div style="font-size:2.6rem;line-height:1;margin-bottom:.3rem">{fa}</div>
+      <div style="margin-bottom:.4rem">{img_a}</div>
       <div style="font-size:.95rem;font-weight:800;color:{T1}">{team_a}</div>
       <div style="font-size:.7rem;color:{T3};font-variant-numeric:tabular-nums">ELO {elo_a:.0f}</div>
     </div>
@@ -109,16 +113,16 @@ def _h2h_html(team_a: str, team_b: str, model, elo_a: float, elo_b: float) -> st
         text-transform:uppercase;color:{T3}">vs</div>
     </div>
     <div style="text-align:right">
-      <div style="font-size:2.6rem;line-height:1;margin-bottom:.3rem">{fb}</div>
+      <div style="margin-bottom:.4rem;display:flex;justify-content:flex-end">{img_b}</div>
       <div style="font-size:.95rem;font-weight:800;color:{T1}">{team_b}</div>
       <div style="font-size:.7rem;color:{T3};font-variant-numeric:tabular-nums">ELO {elo_b:.0f}</div>
     </div>
   </div>
   <div style="height:1px;background:{BORDER};margin-bottom:1rem"></div>
   <div style="display:flex;flex-direction:column;gap:.7rem">
-    {bar_row(pw,  GOLD,     f"Vitória {fa}")}
+    {bar_row(pw,  GOLD,     f"Vitória {code_a}")}
     {bar_row(pd_, T3,       "Empate")}
-    {bar_row(pa,  BLUE,     f"Vitória {fb}")}
+    {bar_row(pa,  BLUE,     f"Vitória {code_b}")}
   </div>
   <p style="font-size:.68rem;color:{T3};margin-top:1rem;text-align:center;margin-bottom:0">
     {team_a} (mandante) vs {team_b} &nbsp;·&nbsp; probabilidades baseadas nos ELOs atuais
@@ -163,10 +167,11 @@ def render(prob_campea: pd.Series, matches: pd.DataFrame,
                          format_func=label, key="tab3_team")
     elo   = elo_ratings.get(team, 1500)
 
+    flag_img = f'<img src="{get_flag_url(team)}" style="width:18px;height:auto;vertical-align:middle;margin-right:.35rem">' if get_flag_url(team) else ""
     st.markdown(
         f"<p style='font-size:.72rem;color:{T3};text-transform:uppercase;"
         f"letter-spacing:.12em;font-weight:700;margin:.5rem 0 .25rem'>"
-        f"Ranking ELO — onde {get_flag(team)} {team} está?</p>",
+        f"Ranking ELO — onde {flag_img}{team} está?</p>",
         unsafe_allow_html=True,
     )
     st.markdown(caption_html("Barra dourada = seleção selecionada. ELO mede força histórica em Copas."), unsafe_allow_html=True)
