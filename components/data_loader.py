@@ -114,7 +114,7 @@ def train_models(matches: pd.DataFrame):
     xgb_model.fit(X_train, y_train, eval_set=[(X_test, y_test)], verbose=False)
 
     # Regressão Logística (baseline)
-    lr_model = LogisticRegression(max_iter=500, random_state=42, multi_class="multinomial")
+    lr_model = LogisticRegression(max_iter=500, random_state=42)
     lr_model.fit(X_train, y_train)
 
     # Métricas comparativas
