@@ -24,22 +24,22 @@ O projeto aborda os três com escolhas técnicas deliberadas — descritas na se
 
 ## Resultado atual
 
-*Atualizado após o Round of 16 · 2026-07-07 · 96 resultados oficiais integrados*
+*Atualizado após QF France × Morocco · 2026-07-11 · 97 resultados oficiais integrados*
 
 **Brasil, Alemanha e Portugal foram eliminados ainda na fase de grupos.** O modelo atualizou os ELOs e rodou 10.000 novas simulações automaticamente após cada rodada.
 
 | # ELO | Seleção | ELO atual | Fase atual |
 |-------|---------|-----------|------------|
-| 1 | 🇦🇷 Argentina | 1734 | ✅ Quartas de Final |
-| 2 | 🇫🇷 France | 1718 | ✅ Quartas de Final |
-| 7 | 🏴󠁧󠁢󠁥󠁮󠁧󠁿 England | 1622 | ✅ Quartas de Final |
-| 9 | 🇪🇸 Spain | 1610 | ✅ Quartas de Final |
-| 10 | 🇧🇪 Belgium | 1607 | ✅ Quartas de Final |
-| 13 | 🇲🇦 Morocco | 1565 | ✅ Quartas de Final |
-| 14 | 🇳🇴 Norway | 1560 | ✅ Quartas de Final |
-| 16 | 🇨🇭 Switzerland | 1547 | ✅ Quartas de Final |
+| 1 | 🇦🇷 Argentina | 1734 | Quartas (a disputar) |
+| 2 | 🇫🇷 France | 1718 | ✅ Semifinal — 2×0 Morocco |
+| 7 | 🏴󠁧󠁢󠁥󠁮󠁧󠁿 England | 1622 | Quartas (a disputar) |
+| 9 | 🇪🇸 Spain | 1610 | Quartas (a disputar) |
+| 10 | 🇧🇪 Belgium | 1607 | Quartas (a disputar) |
+| 13 | 🇲🇦 Morocco | 1565 | ❌ Eliminada (QF) |
+| 14 | 🇳🇴 Norway | 1560 | Quartas (a disputar) |
+| 16 | 🇨🇭 Switzerland | 1547 | Quartas (a disputar) |
 
-*ELO calculado sobre todos os 1.060 jogos de Copa do Mundo Masculina (1930–2026).*
+*ELO calculado sobre todos os 1.061 jogos de Copa do Mundo Masculina (1930–2026).*
 
 ---
 
