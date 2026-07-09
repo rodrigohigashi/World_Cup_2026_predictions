@@ -164,7 +164,7 @@ def render(prob_campea: pd.Series, matches: pd.DataFrame,
 
     teams = ranking.index.tolist()
     team  = st.selectbox("Selecione uma seleção", options=teams,
-                         format_func=label, key="tab3_team")
+                         format_func=lambda t: f"{get_team_code(t)}  —  {t}", key="tab3_team")
     elo   = elo_ratings.get(team, 1500)
 
     flag_img = f'<img src="{get_flag_url(team)}" style="width:18px;height:auto;vertical-align:middle;margin-right:.35rem">' if get_flag_url(team) else ""
@@ -202,6 +202,6 @@ def render(prob_campea: pd.Series, matches: pd.DataFrame,
     )
     opponents = [t for t in teams if t != team]
     opp       = st.selectbox("Adversário", options=opponents,
-                             format_func=label, key="tab3_opp")
+                             format_func=lambda t: f"{get_team_code(t)}  —  {t}", key="tab3_opp")
     elo_opp   = elo_ratings.get(opp, 1500)
     st.markdown(_h2h_html(team, opp, xgb_model, elo, elo_opp), unsafe_allow_html=True)
