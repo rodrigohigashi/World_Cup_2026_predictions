@@ -2,7 +2,7 @@
 
 > Sistema de previsão que combina **ELO histórico + XGBoost + Monte Carlo** para estimar a probabilidade real de cada seleção conquistar o título — atualizado com os resultados oficiais da Copa em andamento.
 
-**[🚀 Acessar o app →](#)** &nbsp;|&nbsp; `Python` `XGBoost` `Monte Carlo` `Streamlit`
+**[🚀 Acessar o app →](https://world-cup-2026-predictions-rhf.streamlit.app/)** &nbsp;|&nbsp; `Python` `XGBoost` `Monte Carlo` `Streamlit`
 
 ---
 
