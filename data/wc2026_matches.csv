@@ -1,0 +1,101 @@
+match_id,match_date,tournament_name,stage_name,group_stage,knockout_stage,home_team_name,away_team_name,home_team_score,away_team_score,home_team_win,away_team_win,draw,result
+wc2026_0000,2026-06-11,2026 FIFA Men's World Cup,group stage,1,0,Mexico,South Africa,2,0,1,0,0,home team win
+wc2026_0001,2026-06-11,2026 FIFA Men's World Cup,group stage,1,0,South Korea,Czech Republic,2,1,1,0,0,home team win
+wc2026_0002,2026-06-18,2026 FIFA Men's World Cup,group stage,1,0,Czech Republic,South Africa,1,1,0,0,1,draw
+wc2026_0003,2026-06-18,2026 FIFA Men's World Cup,group stage,1,0,Mexico,South Korea,1,0,1,0,0,home team win
+wc2026_0004,2026-06-24,2026 FIFA Men's World Cup,group stage,1,0,Mexico,Czech Republic,3,0,1,0,0,home team win
+wc2026_0005,2026-06-24,2026 FIFA Men's World Cup,group stage,1,0,South Africa,South Korea,1,0,1,0,0,home team win
+wc2026_0006,2026-06-12,2026 FIFA Men's World Cup,group stage,1,0,Canada,Bosnia and Herzegovina,1,1,0,0,1,draw
+wc2026_0007,2026-06-13,2026 FIFA Men's World Cup,group stage,1,0,Qatar,Switzerland,1,1,0,0,1,draw
+wc2026_0008,2026-06-18,2026 FIFA Men's World Cup,group stage,1,0,Switzerland,Bosnia and Herzegovina,4,1,1,0,0,home team win
+wc2026_0009,2026-06-18,2026 FIFA Men's World Cup,group stage,1,0,Canada,Qatar,6,0,1,0,0,home team win
+wc2026_0010,2026-06-24,2026 FIFA Men's World Cup,group stage,1,0,Canada,Switzerland,1,2,0,1,0,away team win
+wc2026_0011,2026-06-24,2026 FIFA Men's World Cup,group stage,1,0,Qatar,Bosnia and Herzegovina,1,3,0,1,0,away team win
+wc2026_0012,2026-06-13,2026 FIFA Men's World Cup,group stage,1,0,Brazil,Morocco,1,1,0,0,1,draw
+wc2026_0013,2026-06-13,2026 FIFA Men's World Cup,group stage,1,0,Scotland,Haiti,1,0,1,0,0,home team win
+wc2026_0014,2026-06-19,2026 FIFA Men's World Cup,group stage,1,0,Scotland,Morocco,0,1,0,1,0,away team win
+wc2026_0015,2026-06-19,2026 FIFA Men's World Cup,group stage,1,0,Brazil,Haiti,3,0,1,0,0,home team win
+wc2026_0016,2026-06-24,2026 FIFA Men's World Cup,group stage,1,0,Scotland,Brazil,0,3,0,1,0,away team win
+wc2026_0017,2026-06-24,2026 FIFA Men's World Cup,group stage,1,0,Morocco,Haiti,4,2,1,0,0,home team win
+wc2026_0018,2026-06-12,2026 FIFA Men's World Cup,group stage,1,0,United States,Paraguay,4,1,1,0,0,home team win
+wc2026_0019,2026-06-13,2026 FIFA Men's World Cup,group stage,1,0,Australia,Turkey,2,0,1,0,0,home team win
+wc2026_0020,2026-06-19,2026 FIFA Men's World Cup,group stage,1,0,United States,Australia,2,0,1,0,0,home team win
+wc2026_0021,2026-06-19,2026 FIFA Men's World Cup,group stage,1,0,Turkey,Paraguay,0,1,0,1,0,away team win
+wc2026_0022,2026-06-25,2026 FIFA Men's World Cup,group stage,1,0,Turkey,United States,3,2,1,0,0,home team win
+wc2026_0023,2026-06-25,2026 FIFA Men's World Cup,group stage,1,0,Paraguay,Australia,0,0,0,0,1,draw
+wc2026_0024,2026-06-15,2026 FIFA Men's World Cup,group stage,1,0,Belgium,Egypt,1,1,0,0,1,draw
+wc2026_0025,2026-06-15,2026 FIFA Men's World Cup,group stage,1,0,Iran,New Zealand,2,2,0,0,1,draw
+wc2026_0026,2026-06-21,2026 FIFA Men's World Cup,group stage,1,0,Belgium,Iran,0,0,0,0,1,draw
+wc2026_0027,2026-06-21,2026 FIFA Men's World Cup,group stage,1,0,Egypt,New Zealand,3,1,1,0,0,home team win
+wc2026_0028,2026-06-26,2026 FIFA Men's World Cup,group stage,1,0,Belgium,New Zealand,5,1,1,0,0,home team win
+wc2026_0029,2026-06-26,2026 FIFA Men's World Cup,group stage,1,0,Egypt,Iran,1,1,0,0,1,draw
+wc2026_0030,2026-06-14,2026 FIFA Men's World Cup,group stage,1,0,Germany,Curaçao,7,1,1,0,0,home team win
+wc2026_0031,2026-06-14,2026 FIFA Men's World Cup,group stage,1,0,Ivory Coast,Ecuador,1,0,1,0,0,home team win
+wc2026_0032,2026-06-20,2026 FIFA Men's World Cup,group stage,1,0,Germany,Ivory Coast,2,1,1,0,0,home team win
+wc2026_0033,2026-06-20,2026 FIFA Men's World Cup,group stage,1,0,Ecuador,Curaçao,0,0,0,0,1,draw
+wc2026_0034,2026-06-25,2026 FIFA Men's World Cup,group stage,1,0,Curaçao,Ivory Coast,0,2,0,1,0,away team win
+wc2026_0035,2026-06-25,2026 FIFA Men's World Cup,group stage,1,0,Ecuador,Germany,2,1,1,0,0,home team win
+wc2026_0036,2026-06-15,2026 FIFA Men's World Cup,group stage,1,0,Spain,Cabo Verde,0,0,0,0,1,draw
+wc2026_0037,2026-06-15,2026 FIFA Men's World Cup,group stage,1,0,Saudi Arabia,Uruguay,1,1,0,0,1,draw
+wc2026_0038,2026-06-21,2026 FIFA Men's World Cup,group stage,1,0,Spain,Saudi Arabia,4,0,1,0,0,home team win
+wc2026_0039,2026-06-21,2026 FIFA Men's World Cup,group stage,1,0,Uruguay,Cabo Verde,2,2,0,0,1,draw
+wc2026_0040,2026-06-26,2026 FIFA Men's World Cup,group stage,1,0,Cabo Verde,Saudi Arabia,0,0,0,0,1,draw
+wc2026_0041,2026-06-26,2026 FIFA Men's World Cup,group stage,1,0,Spain,Uruguay,1,0,1,0,0,home team win
+wc2026_0042,2026-06-14,2026 FIFA Men's World Cup,group stage,1,0,Netherlands,Japan,2,2,0,0,1,draw
+wc2026_0043,2026-06-14,2026 FIFA Men's World Cup,group stage,1,0,Sweden,Tunisia,5,1,1,0,0,home team win
+wc2026_0044,2026-06-20,2026 FIFA Men's World Cup,group stage,1,0,Netherlands,Sweden,5,1,1,0,0,home team win
+wc2026_0045,2026-06-20,2026 FIFA Men's World Cup,group stage,1,0,Japan,Tunisia,4,0,1,0,0,home team win
+wc2026_0046,2026-06-25,2026 FIFA Men's World Cup,group stage,1,0,Japan,Sweden,1,1,0,0,1,draw
+wc2026_0047,2026-06-25,2026 FIFA Men's World Cup,group stage,1,0,Netherlands,Tunisia,3,1,1,0,0,home team win
+wc2026_0048,2026-06-16,2026 FIFA Men's World Cup,group stage,1,0,France,Senegal,3,1,1,0,0,home team win
+wc2026_0049,2026-06-16,2026 FIFA Men's World Cup,group stage,1,0,Norway,Iraq,4,1,1,0,0,home team win
+wc2026_0050,2026-06-22,2026 FIFA Men's World Cup,group stage,1,0,France,Iraq,3,0,1,0,0,home team win
+wc2026_0051,2026-06-22,2026 FIFA Men's World Cup,group stage,1,0,Norway,Senegal,3,2,1,0,0,home team win
+wc2026_0052,2026-06-26,2026 FIFA Men's World Cup,group stage,1,0,France,Norway,4,1,1,0,0,home team win
+wc2026_0053,2026-06-26,2026 FIFA Men's World Cup,group stage,1,0,Senegal,Iraq,5,0,1,0,0,home team win
+wc2026_0054,2026-06-16,2026 FIFA Men's World Cup,group stage,1,0,Argentina,Algeria,3,0,1,0,0,home team win
+wc2026_0055,2026-06-16,2026 FIFA Men's World Cup,group stage,1,0,Austria,Jordan,3,1,1,0,0,home team win
+wc2026_0056,2026-06-22,2026 FIFA Men's World Cup,group stage,1,0,Argentina,Austria,2,0,1,0,0,home team win
+wc2026_0057,2026-06-22,2026 FIFA Men's World Cup,group stage,1,0,Jordan,Algeria,1,2,0,1,0,away team win
+wc2026_0058,2026-06-27,2026 FIFA Men's World Cup,group stage,1,0,Argentina,Jordan,3,1,1,0,0,home team win
+wc2026_0059,2026-06-27,2026 FIFA Men's World Cup,group stage,1,0,Austria,Algeria,3,3,0,0,1,draw
+wc2026_0060,2026-06-17,2026 FIFA Men's World Cup,group stage,1,0,Portugal,Congo DR,1,1,0,0,1,draw
+wc2026_0061,2026-06-17,2026 FIFA Men's World Cup,group stage,1,0,Uzbekistan,Colombia,1,3,0,1,0,away team win
+wc2026_0062,2026-06-23,2026 FIFA Men's World Cup,group stage,1,0,Portugal,Uzbekistan,5,0,1,0,0,home team win
+wc2026_0063,2026-06-23,2026 FIFA Men's World Cup,group stage,1,0,Colombia,Congo DR,1,0,1,0,0,home team win
+wc2026_0064,2026-06-27,2026 FIFA Men's World Cup,group stage,1,0,Portugal,Colombia,0,0,0,0,1,draw
+wc2026_0065,2026-06-27,2026 FIFA Men's World Cup,group stage,1,0,Uzbekistan,Congo DR,1,3,0,1,0,away team win
+wc2026_0066,2026-06-17,2026 FIFA Men's World Cup,group stage,1,0,England,Croatia,4,2,1,0,0,home team win
+wc2026_0067,2026-06-17,2026 FIFA Men's World Cup,group stage,1,0,Ghana,Panama,1,0,1,0,0,home team win
+wc2026_0068,2026-06-23,2026 FIFA Men's World Cup,group stage,1,0,England,Ghana,0,0,0,0,1,draw
+wc2026_0069,2026-06-23,2026 FIFA Men's World Cup,group stage,1,0,Panama,Croatia,0,1,0,1,0,away team win
+wc2026_0070,2026-06-27,2026 FIFA Men's World Cup,group stage,1,0,England,Panama,2,0,1,0,0,home team win
+wc2026_0071,2026-06-27,2026 FIFA Men's World Cup,group stage,1,0,Croatia,Ghana,2,1,1,0,0,home team win
+wc2026_0072,2026-06-28,2026 FIFA Men's World Cup,round of 32,0,1,Canada,South Africa,1,0,1,0,0,home team win
+wc2026_0073,2026-06-29,2026 FIFA Men's World Cup,round of 32,0,1,Brazil,Japan,2,1,1,0,0,home team win
+wc2026_0074,2026-06-29,2026 FIFA Men's World Cup,round of 32,0,1,Netherlands,Morocco,1,1,0,1,0,away team win
+wc2026_0075,2026-06-30,2026 FIFA Men's World Cup,round of 32,0,1,Mexico,Ecuador,2,0,1,0,0,home team win
+wc2026_0076,2026-06-30,2026 FIFA Men's World Cup,round of 32,0,1,France,Sweden,3,0,1,0,0,home team win
+wc2026_0077,2026-06-30,2026 FIFA Men's World Cup,round of 32,0,1,Ivory Coast,Norway,1,2,0,1,0,away team win
+wc2026_0078,2026-07-01,2026 FIFA Men's World Cup,round of 32,0,1,England,Congo DR,2,1,1,0,0,home team win
+wc2026_0079,2026-07-01,2026 FIFA Men's World Cup,round of 32,0,1,Belgium,Senegal,3,2,1,0,0,home team win
+wc2026_0080,2026-07-01,2026 FIFA Men's World Cup,round of 32,0,1,United States,Bosnia and Herzegovina,2,0,1,0,0,home team win
+wc2026_0081,2026-07-02,2026 FIFA Men's World Cup,round of 32,0,1,Spain,Austria,3,0,1,0,0,home team win
+wc2026_0082,2026-07-02,2026 FIFA Men's World Cup,round of 32,0,1,Portugal,Croatia,2,1,1,0,0,home team win
+wc2026_0083,2026-07-02,2026 FIFA Men's World Cup,round of 32,0,1,Switzerland,Algeria,2,0,1,0,0,home team win
+wc2026_0084,2026-07-03,2026 FIFA Men's World Cup,round of 32,0,1,Egypt,Australia,1,1,1,0,0,home team win
+wc2026_0085,2026-07-03,2026 FIFA Men's World Cup,round of 32,0,1,Argentina,Cabo Verde,3,2,1,0,0,home team win
+wc2026_0086,2026-07-03,2026 FIFA Men's World Cup,round of 32,0,1,Colombia,Ghana,1,0,1,0,0,home team win
+wc2026_0087,2026-07-03,2026 FIFA Men's World Cup,round of 32,0,1,Germany,Paraguay,1,1,0,1,0,away team win
+wc2026_0088,2026-07-04,2026 FIFA Men's World Cup,round of 16,0,1,Morocco,Canada,3,0,1,0,0,home team win
+wc2026_0089,2026-07-04,2026 FIFA Men's World Cup,round of 16,0,1,France,Paraguay,1,0,1,0,0,home team win
+wc2026_0090,2026-07-05,2026 FIFA Men's World Cup,round of 16,0,1,Norway,Brazil,2,1,1,0,0,home team win
+wc2026_0091,2026-07-05,2026 FIFA Men's World Cup,round of 16,0,1,Mexico,England,2,3,0,1,0,away team win
+wc2026_0092,2026-07-06,2026 FIFA Men's World Cup,round of 16,0,1,Portugal,Spain,0,1,0,1,0,away team win
+wc2026_0093,2026-07-07,2026 FIFA Men's World Cup,round of 16,0,1,United States,Belgium,0,3,0,1,0,away team win
+wc2026_0094,2026-07-07,2026 FIFA Men's World Cup,round of 16,0,1,Argentina,Egypt,3,2,1,0,0,home team win
+wc2026_0095,2026-07-07,2026 FIFA Men's World Cup,round of 16,0,1,Switzerland,Colombia,0,0,1,0,0,home team win
+wc2026_0096,2026-07-11,2026 FIFA Men's World Cup,quarter-final,0,1,France,Morocco,0,0,0,0,0,scheduled
+wc2026_0097,2026-07-11,2026 FIFA Men's World Cup,quarter-final,0,1,Spain,Belgium,0,0,0,0,0,scheduled
+wc2026_0098,2026-07-12,2026 FIFA Men's World Cup,quarter-final,0,1,England,Norway,0,0,0,0,0,scheduled
+wc2026_0099,2026-07-12,2026 FIFA Men's World Cup,quarter-final,0,1,Argentina,Switzerland,0,0,0,0,0,scheduled

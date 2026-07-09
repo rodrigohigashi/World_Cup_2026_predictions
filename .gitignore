@@ -1,5 +1,6 @@
-# Dados — baixados automaticamente pelos scripts
-data/
+# Dados processados e temporários — não fazem parte do deploy
+data/processed/
+data/kaggle_2026/
 
 # Notebook executado (gerado, não é source)
 copa2026_executado.ipynb
