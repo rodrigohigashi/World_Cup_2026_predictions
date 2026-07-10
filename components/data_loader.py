@@ -251,20 +251,28 @@ def run_simulation(_model, _elo_ratings, _ranking, _matches, n=N_SIMULACOES, see
         if t in alive
     }
 
-    # Bracket na maior potência de 2 disponível (≤ número de times vivos)
+    # Bracket na menor potência de 2 >= número de times vivos.
+    # Quando n_alive não é potência de 2 (ex: 7 após um QF decidido),
+    # slots vagos recebem um BYE que sempre perde — sem cortar times reais.
     n_alive = len(elo_2026)
-    bracket_size = 1 << (n_alive.bit_length() - 1)
-    teams = list(
-        pd.Series(elo_2026).sort_values(ascending=False).head(bracket_size).index
-    )
+    bracket_size = 1 << (max(n_alive, 1) - 1).bit_length()
+    teams = list(pd.Series(elo_2026).sort_values(ascending=False).index)
 
-    # Pré-computa probabilidades para cada par de times
+    # Pré-computa probabilidades para cada par de times reais
     prob_cache = {}
     for t1, t2 in combinations(teams, 2):
         e1 = elo_2026.get(t1, 1500)
         e2 = elo_2026.get(t2, 1500)
         prob_cache[(t1, t2)] = _prever(_model, e1, e2)
         prob_cache[(t2, t1)] = _prever(_model, e2, e1)
+
+    # BYE: slot fictício que sempre perde — necessário quando n_alive não é potência de 2
+    _BYE = "__BYE__"
+    for real_team in teams:
+        prob_cache[(_BYE, real_team)] = (0.0, 0.0, 1.0)
+        prob_cache[(real_team, _BYE)] = (1.0, 0.0, 0.0)
+    n_byes = bracket_size - n_alive
+    teams_with_byes = teams + [_BYE] * n_byes
 
     np.random.seed(seed)
 
@@ -273,7 +281,7 @@ def run_simulation(_model, _elo_ratings, _ranking, _matches, n=N_SIMULACOES, see
     counts = {t: {p: 0 for p in phases} for t in teams}
 
     for _ in range(n):
-        bracket = list(teams)
+        bracket = list(teams_with_byes)
         np.random.shuffle(bracket)
         phase_idx = 0  # 0=quartas, 1=semi, 2=final, 3=campeao
 
@@ -286,10 +294,12 @@ def run_simulation(_model, _elo_ratings, _ranking, _matches, n=N_SIMULACOES, see
                 proxima.append(venc)
 
             if len(proxima) == 1:
-                counts[proxima[0]]["campeao"] += 1
+                if proxima[0] != _BYE:
+                    counts[proxima[0]]["campeao"] += 1
             elif phase_idx < len(phases) - 1:
                 for t in proxima:
-                    counts[t][phases[phase_idx]] += 1
+                    if t != _BYE:
+                        counts[t][phases[phase_idx]] += 1
 
             phase_idx += 1
             bracket = proxima
