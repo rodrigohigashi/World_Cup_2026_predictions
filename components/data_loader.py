@@ -19,6 +19,7 @@ warnings.filterwarnings("ignore")
 DATA_DIR = Path(__file__).parent.parent / "data" / "fjelstul"
 N_SIMULACOES = 10_000
 FEATURES = ["elo_home", "elo_away", "elo_diff"]
+_BYE = "__BYE__"
 
 
 # ── 1. Dados brutos ──────────────────────────────────────────────────────────
@@ -189,6 +190,27 @@ def _alive_teams(matches: pd.DataFrame) -> set:
     return appeared - eliminated
 
 
+def _make_bracket(teams: list, n_byes: int, bracket_size: int) -> list:
+    """
+    Embaralha times reais e distribui BYEs em pares distintos.
+    Garante por construção que nunca há um par BYE×BYE.
+    """
+    shuffled = list(teams)
+    np.random.shuffle(shuffled)
+    if n_byes == 0:
+        return shuffled
+    bye_pairs = np.random.choice(bracket_size // 2, n_byes, replace=False)
+    bracket = [None] * bracket_size
+    for bp in bye_pairs:
+        bracket[2 * bp + 1] = _BYE
+    ri = 0
+    for i in range(bracket_size):
+        if bracket[i] is None:
+            bracket[i] = shuffled[ri]
+            ri += 1
+    return bracket
+
+
 def get_current_stage_matches(matches: pd.DataFrame, elo_ratings: dict, model) -> list:
     """
     Returns upcoming fixtures for the current stage.
@@ -267,12 +289,10 @@ def run_simulation(_model, _elo_ratings, _ranking, _matches, n=N_SIMULACOES, see
         prob_cache[(t2, t1)] = _prever(_model, e2, e1)
 
     # BYE: slot fictício que sempre perde — necessário quando n_alive não é potência de 2
-    _BYE = "__BYE__"
     for real_team in teams:
         prob_cache[(_BYE, real_team)] = (0.0, 0.0, 1.0)
         prob_cache[(real_team, _BYE)] = (1.0, 0.0, 0.0)
     n_byes = bracket_size - n_alive
-    teams_with_byes = teams + [_BYE] * n_byes
 
     np.random.seed(seed)
 
@@ -281,8 +301,7 @@ def run_simulation(_model, _elo_ratings, _ranking, _matches, n=N_SIMULACOES, see
     counts = {t: {p: 0 for p in phases} for t in teams}
 
     for _ in range(n):
-        bracket = list(teams_with_byes)
-        np.random.shuffle(bracket)
+        bracket = _make_bracket(teams, n_byes, bracket_size)
         phase_idx = 0  # 0=quartas, 1=semi, 2=final, 3=campeao
 
         while len(bracket) > 1:
