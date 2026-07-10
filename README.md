@@ -1,158 +1,152 @@
-# 🏆 Copa do Mundo 2026 — Simulador de Probabilidades
+# World Cup 2026 — Probability Simulator
 
-> Sistema de previsão que combina **ELO histórico + XGBoost + Monte Carlo** para estimar a probabilidade real de cada seleção conquistar o título — atualizado com os resultados oficiais da Copa em andamento.
+> A data-driven prediction system combining **ELO ratings, XGBoost, and Monte Carlo simulation** to estimate each team's probability of winning the 2026 FIFA World Cup — updated in real time as official results come in.
 
-**[🚀 Acessar o app →](https://world-cup-2026-predictions-rhf.streamlit.app/)** &nbsp;|&nbsp; `Python` `XGBoost` `Monte Carlo` `Streamlit`
+**[Launch the app →](https://world-cup-2026-predictions-rhf.streamlit.app/)** &nbsp;|&nbsp; `Python` `XGBoost` `Monte Carlo` `Streamlit`
 
----
-
-## A pergunta que todo mundo faz — e por que é difícil de responder
-
-*"Quem vai ganhar a Copa?"* parece simples. Executar rigorosamente não é.
-
-Três problemas tornam esse projeto tecnicamente interessante:
-
-**Incerteza composta.** Para ser campeã, uma seleção precisa vencer **6 jogos seguidos** contra adversários diferentes. Pequenas vantagens de qualidade se acumulam de forma não-linear — um modelo que ignora essa composição subestima sistematicamente zebras e surpresas.
-
-**Escassez extrema de dados.** A Copa do Mundo tem apenas **964 jogos** em toda a história até 2022 — menos do que uma única temporada da Premier League. Qualquer arquitetura de feature engineering complexa vai superajustar ao ruído com esse volume.
-
-**Não-estacionariedade.** O Brasil de 1970 não é o Brasil de 2026. Um modelo que trata todos os jogos históricos como equivalentes vai superestimar potências em declínio e subestimar seleções emergentes.
-
-O projeto aborda os três com escolhas técnicas deliberadas — descritas na seção [Decisões técnicas](#decisões-técnicas).
+![Demo](assets/demo.gif)
 
 ---
 
-## Resultado atual
+## The problem
 
-*Atualizado após QF France × Morocco · 2026-07-11 · 97 resultados oficiais integrados*
+*"Who's going to win the World Cup?"* sounds simple. Answering it rigorously is not.
 
-**Brasil, Alemanha e Portugal foram eliminados ainda na fase de grupos.** O modelo atualizou os ELOs e rodou 10.000 novas simulações automaticamente após cada rodada.
+Three things make this technically interesting:
 
-| # ELO | Seleção | ELO atual | Fase atual |
-|-------|---------|-----------|------------|
-| 1 | 🇦🇷 Argentina | 1734 | Quartas (a disputar) |
-| 2 | 🇫🇷 France | 1718 | ✅ Semifinal — 2×0 Morocco |
-| 7 | 🏴󠁧󠁢󠁥󠁮󠁧󠁿 England | 1622 | Quartas (a disputar) |
-| 9 | 🇪🇸 Spain | 1610 | Quartas (a disputar) |
-| 10 | 🇧🇪 Belgium | 1607 | Quartas (a disputar) |
-| 13 | 🇲🇦 Morocco | 1565 | ❌ Eliminada (QF) |
-| 14 | 🇳🇴 Norway | 1560 | Quartas (a disputar) |
-| 16 | 🇨🇭 Switzerland | 1547 | Quartas (a disputar) |
+**Compounded uncertainty.** A team needs to win **six consecutive matches** against different opponents to become champion. Small quality differences compound in non-linear ways — a model that ignores this systematically underestimates upsets.
 
-*ELO calculado sobre todos os 1.061 jogos de Copa do Mundo Masculina (1930–2026).*
+**Data scarcity.** The Men's World Cup has only **964 matches** across its entire history through 2022 — fewer than a single Premier League season. Any complex feature engineering will overfit on this volume.
+
+**Non-stationarity.** The 1970 Brazil is not the 2026 Brazil. A model that treats all historical matches as equivalent will overestimate declining powers and underestimate emerging ones.
+
+The project addresses all three with deliberate technical choices, described in the [Methodology](#methodology) section.
 
 ---
 
-## Pipeline em 3 etapas
+## Live demo
 
-### 1 · ELO Rating — quem é mais forte?
+![Home screen](assets/home.png)
 
-Calculamos um rating dinâmico para cada seleção a partir de **todos os resultados históricos** das Copas Masculinas (1930–2026), incluindo os 96 resultados reais da Copa 2026 já disputados.
+**[world-cup-2026-predictions-rhf.streamlit.app](https://world-cup-2026-predictions-rhf.streamlit.app/)**
 
-O ELO funciona como o ranking de xadrez: vencer um adversário com rating alto vale mais do que vencer um adversário fraco. O rating é atualizado jogo a jogo, em ordem cronológica, capturando a força atual de cada seleção sem depender de rankings externos ou critérios subjetivos.
+The app has four tabs:
 
-```
-ratings[time_A] += K × (resultado - probabilidade_esperada)
-                    ↑
-              K = 30  (testamos outros valores — 30 equilibra
-                        memória histórica e responsividade)
-```
-
-Seleções sem histórico recente partem do ELO base (1.500) e constroem reputação pelo desempenho. Isso disciplina o modelo: sem dados, sem confiança alta.
-
-### 2 · XGBoost — o que vai acontecer neste jogo?
-
-Com os ELOs calculados, treinamos um **classificador multi-classe** para prever o resultado de qualquer partida: vitória do mandante (0), empate (1) ou vitória do visitante (2).
-
-```python
-features = ["elo_home", "elo_away", "elo_diff"]  # apenas 3 variáveis
-```
-
-A restrição é intencional: feature engineering elaborada com 1.300 amostras aumenta variância sem reduzir viés. Três features simples + XGBoost com regularização moderada superam modelos mais complexos nas validações.
-
-Comparamos com Regressão Logística como baseline para quantificar o ganho real de complexidade:
-
-| Modelo | Acurácia | vs. baseline aleatório |
-|--------|----------|------------------------|
-| **XGBoost** | **58%** | **+75%** |
-| Regressão Logística | ~55% | +67% |
-| Chute aleatório (3 classes) | 33% | — |
-
-XGBoost supera o baseline em acurácia **e** em log-loss — as probabilidades geradas são mais calibradas, o que importa diretamente para a qualidade da simulação Monte Carlo.
-
-### 3 · Monte Carlo — e o torneio inteiro?
-
-A chance de ser campeão não é a probabilidade de vencer um jogo. É a probabilidade de vencer **todos os jogos necessários**, contra adversários que também chegaram até ali.
-
-Simulamos o torneio **10.000 vezes**:
-
-```
-Para cada simulação:
-  1. Embaralha o bracket com as seleções vivas
-  2. Para cada confronto: XGBoost gera P(vitória A), P(empate), P(vitória B)
-  3. Sorteio ponderado determina o vencedor
-  4. Avança para a próxima rodada até restar 1 seleção
-  5. Registra qual seleção chegou a cada fase
-
-Resultado: P(campeã) = contagem de títulos / 10.000
-```
-
-Com 10.000 amostras, o erro estatístico fica abaixo de 1 ponto percentual no nível de seleção. O custo computacional é < 1 segundo — o pipeline inteiro roda em < 5 segundos.
+| Tab | Content |
+|-----|---------|
+| 🥇 Who's going to win? | Tournament progress · upcoming matchups · win probability ranking |
+| 🔍 My team | Team profile · ELO rating · stage-by-stage probability funnel |
+| 🤔 Why this result? | ELO ranking · ELO history · feature importance · head-to-head simulator |
+| 📊 Can I trust this? | Model metrics · methodology · data sources · known limitations |
 
 ---
 
-## Arquitetura
+## Architecture
 
 ```
-app.py                       # Entry point Streamlit
+app.py                       # Streamlit entry point
 │
 components/
-├── data_loader.py           # Pipeline completo: load → ELO → train → simulate
-│                            # Tudo cacheado (@st.cache_data / @st.cache_resource)
-├── tab1_overview.py         # Hero card · confrontos da fase atual · ranking
-├── tab2_team.py             # Team profile · funil de probabilidades por fase
-├── tab3_why.py              # ELO ranking · histórico ELO · importância de features · H2H
-├── tab4_trust.py            # Métricas do modelo · limitações · fontes de dados
-├── teams_2026.py            # Lista canônica das 48 seleções classificadas
-└── flags.py                 # Mapeamento seleção → emoji de bandeira
+├── data_loader.py           # Full pipeline: load → ELO → train → simulate
+│                            # All results cached with @st.cache_data / @st.cache_resource
+├── tab1_overview.py         # Tournament overview tab
+├── tab2_team.py             # Team profile tab
+├── tab3_why.py              # Explainability tab
+├── tab4_trust.py            # Model trust tab
+├── teams_2026.py            # Canonical list of 48 qualified teams
+├── flags.py                 # Team → flag URL, 3-letter code, nation color
+└── theme.py                 # Design tokens and Plotly theme helpers
 │
 data/
-├── fjelstul/matches.csv     # 964 jogos históricos — Copa Masculina 1930–2022
-└── wc2026_matches.csv       # 96 jogos reais da Copa 2026 (atualizado conforme torneio avança)
+├── fjelstul/matches.csv     # 964 historical matches — Men's WC 1930–2022
+└── wc2026_matches.csv       # Official 2026 results (updated as tournament progresses)
+                             # Unplayed matches stored with result="scheduled" (skipped in ELO)
 ```
 
-O pipeline não usa banco de dados, arquivos serializados ou APIs externas. Tudo roda em memória a partir dos dois CSVs, o que simplifica o deploy e garante reprodutibilidade.
+No database, no serialized model files for production, no external APIs. Everything runs in memory from two CSV files. Adding a new match result to `wc2026_matches.csv` updates the full pipeline on the next app load.
 
 ---
 
-## Decisões técnicas
+## Methodology
 
-**Por que ELO e não o Ranking FIFA?**
-O Ranking FIFA usa critérios proprietários com pesos não documentados e muda de metodologia entre edições. ELO é derivável a partir dos mesmos dados que o modelo usa, auditável e sem dependência externa.
+### Step 1 — ELO Rating: measuring team strength
 
-**Por que XGBoost com 3 features e não uma rede neural?**
-Com ~1.300 amostras, qualquer modelo com alta capacidade vai overfit. Testamos feature engineering adicional (margem de vitória, sequência de resultados recentes) — o ganho foi marginal e a variância aumentou. XGBoost com regularização supera redes neurais neste regime de dados.
+ELO ratings are computed sequentially from all **1,061 Men's World Cup matches** (1930–2026), including official 2026 results integrated so far. The rating updates after every match:
 
-**Por que Monte Carlo e não cálculo analítico das probabilidades?**
-A probabilidade exata de ser campeão exigiria enumerar todos os caminhos possíveis no bracket — fatorialmente complexo. Monte Carlo com 10.000 amostras converge para erro < 1% em milissegundos.
+```
+rating[team_A] += K × (result − expected_result)
+```
 
-**Por que não há decaimento temporal no ELO?**
-Testamos um fator de decaimento que reduz o peso de jogos antigos. Nas validações retrospectivas (prever Copa N a partir das Copas 1 até N-1), o decaimento degradou a calibração. O intervalo de 4 anos entre Copas já funciona como filtro natural de obsolescência.
+- `K = 30` — balances historical memory with responsiveness to recent results
+- Base rating: **1,500** for teams without World Cup history
+- Unplayed 2026 fixtures are flagged as `result="scheduled"` and skipped during ELO computation, preventing data leakage
+
+**Why ELO instead of FIFA rankings?** The FIFA ranking uses proprietary, undocumented weights that have changed across editions. ELO is fully derivable from the same match data the model uses — auditable and dependency-free.
+
+### Step 2 — XGBoost: predicting individual match outcomes
+
+A multi-class XGBoost classifier predicts the result of any match: home win (0), draw (1), or away win (2).
+
+```python
+features = ["elo_home", "elo_away", "elo_diff"]  # three variables only
+```
+
+The feature constraint is intentional: with ~1,060 training samples, additional features increase variance without reducing bias. Three simple features with regularized XGBoost outperform more complex models in cross-validation.
+
+A Logistic Regression baseline is trained in parallel to quantify the real gain from model complexity:
+
+| Model | Accuracy | vs. random baseline |
+|-------|----------|---------------------|
+| **XGBoost** | **58%** | **+75%** |
+| Logistic Regression | ~55% | +67% |
+| Random (3 classes) | 33% | — |
+
+XGBoost outperforms the baseline in both accuracy and log-loss — meaning the probabilities it generates are better calibrated, which directly impacts simulation quality.
+
+**Why not a neural network?** With ~1,060 samples, any high-capacity model overfits. We tested additional features (goal margin, recent form) and neural architectures — marginal gain, higher variance. XGBoost with regularization is the right tool at this data scale.
+
+### Step 3 — Monte Carlo: simulating the full tournament
+
+A team's championship probability is not the probability of winning one match. It is the probability of winning **all required matches**, against opponents who also made it that far.
+
+The tournament is simulated **10,000 times**:
+
+```
+For each simulation:
+  1. Arrange remaining alive teams in a bracket
+  2. For each matchup: XGBoost generates P(home win), P(draw), P(away win)
+  3. Weighted random draw determines the winner
+  4. Advance to next round until one team remains
+  5. Record which team won the title and reached each stage
+
+Result: P(champion) = title count / 10,000
+```
+
+With 10,000 samples, the statistical error stays below 1 percentage point per team. The full pipeline — ELO computation, model training, and 10,000 simulations — runs in under 5 seconds.
+
+**Why not compute exact probabilities?** Enumerating all bracket paths grows factorially with the number of teams. Monte Carlo with 10,000 samples converges to <1% error in milliseconds.
 
 ---
 
-## Dados
+## Current standings
 
-| Fonte | Conteúdo | Volume |
-|-------|----------|--------|
-| [Fjelstul World Cup Database](https://github.com/jfjelstul/worldcup) | Copas Masculinas 1930–2022 | 964 jogos |
-| Resultados oficiais FIFA 2026 | Copa em andamento — atualizado manualmente | 96 jogos |
+*Updated after QF France × Morocco · 2026-07-11 · 97 official results integrated*
 
-A base Fjelstul foi filtrada para excluir as Copas Femininas (1991–2019). Incluir resultados femininos inflacionaria o ELO de seleções como EUA, Japão e Noruega, cujos programas masculinos têm histórico radicalmente diferente.
+| ELO Rank | Team | ELO | Status |
+|----------|------|-----|--------|
+| 1 | Argentina | 1734 | Quarterfinals (pending) |
+| 2 | France | 1718 | ✅ Semifinal — 2×0 Morocco |
+| 7 | England | 1622 | Quarterfinals (pending) |
+| 9 | Spain | 1610 | Quarterfinals (pending) |
+| 10 | Belgium | 1607 | Quarterfinals (pending) |
+| 14 | Norway | 1560 | Quarterfinals (pending) |
+| 16 | Switzerland | 1547 | Quarterfinals (pending) |
+
+*ELO computed across all 1,061 Men's World Cup matches (1930–2026).*
 
 ---
 
-## Rodar localmente
+## Run locally
 
 ```bash
 git clone https://github.com/rodrigohigashi/World_Cup_2026_predictions
@@ -161,19 +155,63 @@ pip install -r requirements.txt
 streamlit run app.py
 ```
 
-Sem configuração adicional. O pipeline detecta automaticamente as seleções vivas a partir dos resultados no CSV — adicionar um novo jogo ao `wc2026_matches.csv` atualiza todo o modelo.
+No additional configuration needed. The pipeline automatically detects which teams are still alive from the CSV — adding a new match result to `wc2026_matches.csv` updates the entire model.
+
+**Requirements:** Python 3.10+
 
 ---
 
-## Limitações
+## Project structure
 
-Documentadas como parte da metodologia, não como rodapé de disclaimer:
+```
+.
+├── app.py
+├── requirements.txt
+├── assets/
+│   ├── demo.gif
+│   └── home.png
+├── components/
+│   ├── data_loader.py
+│   ├── flags.py
+│   ├── tab1_overview.py
+│   ├── tab2_team.py
+│   ├── tab3_why.py
+│   ├── tab4_trust.py
+│   ├── teams_2026.py
+│   └── theme.py
+├── data/
+│   ├── fjelstul/            # Historical WC data (1930–2022)
+│   └── wc2026_matches.csv   # Live 2026 results
+├── notebooks/
+│   └── copa2026.ipynb       # Exploratory analysis and model prototyping
+└── src/
+    ├── build_dataset.py
+    ├── download_data.py
+    └── model.py
+```
 
-- **ELO apenas de Copas do Mundo** — eliminatórias, Copa das Confederações e amistosos não entram. Seleções que raramente se classificam têm histórico limitado e ELO menos confiável.
-- **Pênaltis como 50/50** — decisões por pênaltis são simuladas como sorteio. Há evidência de que alguns países têm vantagem estatística (e.g., Alemanha historicamente), mas o volume de dados por seleção é muito pequeno para modelar com confiança.
-- **Bracket aleatório** — o chaveamento real do torneio é substituído por sorteio em cada simulação. Isso subestima o impacto de cruzamentos favoráveis ou desfavoráveis.
-- **Split treino/teste aleatório** — um split temporal (treinar em Copas até 2014, testar em 2018 e 2022) seria metodologicamente mais rigoroso. Com ~1.300 amostras, o impacto prático é limitado.
-- **Sem modelagem de forma recente** — o ELO captura força histórica acumulada. Um time em má fase no ano da Copa não tem esse sinal capturado.
+---
+
+## Key design decisions
+
+**Temporal ELO, no decay.** We tested a decay factor that reduces the weight of older matches. In retrospective validation (predict Cup N using Cups 1 through N−1), decay degraded calibration. The four-year gap between tournaments already acts as a natural obsolescence filter.
+
+**Random train/test split.** A temporal split (train on 1930–2014, test on 2018 and 2022) would be more rigorous. With ~1,060 samples, the practical impact on the metrics shown is limited — this is documented as a known limitation, not hidden.
+
+**`result="scheduled"` sentinel.** Unplayed fixtures are kept in the CSV with a sentinel value and skipped during ELO computation. This allows `get_current_stage_matches()` to derive upcoming matchups automatically from the same file, without hardcoding bracket structure elsewhere.
+
+**No external model serving.** The model is retrained on every cold start (~1 second). This avoids serialization drift — the model always reflects the latest match data in the CSV.
+
+---
+
+## Known limitations
+
+Documented as part of the methodology, not buried in a disclaimer:
+
+- **WC-only ELO** — Qualifiers, Confederations Cup, and friendlies are excluded. Teams that rarely qualify have limited historical data and less reliable ratings.
+- **Penalties as 50/50** — Penalty shootouts are modeled as a coin flip. There is evidence that some nations have a statistical edge (e.g. historically Germany), but the per-team sample size is too small to model reliably.
+- **Random bracket** — The real bracket structure is replaced with a random draw in each simulation. This underestimates the impact of favorable or unfavorable crossings.
+- **No recent form signal** — ELO captures accumulated historical strength. A team in poor form in the tournament year has no signal captured.
 
 ---
 
@@ -183,7 +221,24 @@ Documentadas como parte da metodologia, não como rodapé de disclaimer:
 ![XGBoost](https://img.shields.io/badge/XGBoost-2.0+-FF6600?style=flat)
 ![Streamlit](https://img.shields.io/badge/Streamlit-1.35+-FF4B4B?style=flat&logo=streamlit&logoColor=white)
 ![Plotly](https://img.shields.io/badge/Plotly-5.18+-3F4F75?style=flat&logo=plotly&logoColor=white)
+![scikit-learn](https://img.shields.io/badge/scikit--learn-1.3+-F7931E?style=flat&logo=scikitlearn&logoColor=white)
 
 ---
 
-*Projeto por [Rodrigo Higashi](https://github.com/rodrigohigashi) · Copa do Mundo 2026*
+## Possible improvements
+
+- **Temporal train/test split** — Train on Cups 1930–2014, evaluate on 2018 and 2022 only
+- **Penalty modeling** — Use per-team historical penalty conversion rates where sample size allows
+- **Recent form feature** — Add an exponentially decayed weight to recent matches within the current ELO update
+- **Qualification data** — Extend ELO to include World Cup qualifiers for teams with limited Cup history
+- **Bracket-aware simulation** — Respect real bracket rules (group winners vs. runners-up) instead of random draw
+
+---
+
+## License
+
+MIT License — see [LICENSE](LICENSE) for details.
+
+---
+
+*Project by [Rodrigo Higashi](https://github.com/rodrigohigashi) · 2026 FIFA World Cup*
