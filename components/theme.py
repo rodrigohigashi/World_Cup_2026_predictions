@@ -15,7 +15,7 @@ BLUE   = "#3B82F6"
 # Text
 T1     = "#EDF2FF"
 T2     = "#7B9FBE"
-T3     = "#3D5A76"
+T3     = "#6B90AD"
 BORDER = "rgba(123,159,190,0.11)"
 
 _AXIS = dict(
