@@ -26,7 +26,7 @@ The project addresses all three with deliberate technical choices, described in 
 
 ## Live demo
 
-![Home screen](assets/home.png)
+![Home screen](assets/home.jpg)
 
 **[world-cup-2026-predictions-rhf.streamlit.app](https://world-cup-2026-predictions-rhf.streamlit.app/)**
 
