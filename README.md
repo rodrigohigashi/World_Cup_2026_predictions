@@ -212,6 +212,7 @@ Documented as part of the methodology, not buried in a disclaimer:
 - **Penalties as 50/50** — Penalty shootouts are modeled as a coin flip. There is evidence that some nations have a statistical edge (e.g. historically Germany), but the per-team sample size is too small to model reliably.
 - **Random bracket** — The real bracket structure is replaced with a random draw in each simulation. This underestimates the impact of favorable or unfavorable crossings.
 - **No recent form signal** — ELO captures accumulated historical strength. A team in poor form in the tournament year has no signal captured.
+- **XGBoost extrapolation at extreme ELO values** — In late-tournament stages, teams like Argentina (ELO 1734) and France (ELO 1726) reach ELO values at or above the 97th–99th percentile of the training distribution. SHAP analysis confirmed that the XGBoost model produces predictions inconsistent with the ELO formula, the Logistic Regression baseline, and historical base rates for those specific matchups (e.g. predicting 24% for a team with a +101 ELO advantage, against a historical base rate of 71%). A hybrid approach using Mean Leaf Sample Count (MLSC) to route extreme cases to Logistic Regression was investigated and intentionally rejected: it consistently degraded validation performance (higher log-loss, lower accuracy, worse calibration on the test set) compared with pure XGBoost. The project retains XGBoost as the sole predictor and documents this as a known limitation rather than introducing an empirically unsupported correction.
 
 ---
 

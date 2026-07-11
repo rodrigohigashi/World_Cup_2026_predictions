@@ -1,7 +1,7 @@
 import streamlit as st
 from components.data_loader import (
     load_matches, compute_elo, train_models, run_simulation, _alive_teams,
-    get_current_stage_matches, build_ood_detector,
+    get_current_stage_matches,
 )
 from components import tab1_overview, tab2_team, tab3_why, tab4_trust
 from components.teams_2026 import TEAMS_2026
@@ -19,15 +19,10 @@ with st.spinner("Carregando dados e rodando simulações..."):
     matches_raw       = load_matches()
     matches, elo_ratings, ranking = compute_elo(matches_raw)
     xgb_model, lr_model, metrics, X_test, y_test = train_models(matches)
-    ood_params        = build_ood_detector(xgb_model.get_booster(), matches)
     prob_campea, phase_probs = run_simulation(
-        xgb_model, elo_ratings, ranking, matches, n=10_000,
-        _lr_model=lr_model, _ood_params=ood_params,
+        xgb_model, elo_ratings, ranking, matches, n=10_000
     )
-    matchups    = get_current_stage_matches(
-        matches_raw, elo_ratings, xgb_model,
-        lr_model=lr_model, ood_params=ood_params,
-    )
+    matchups    = get_current_stage_matches(matches_raw, elo_ratings, xgb_model)
     n_historico = int((matches_raw["match_date"] < "2026-01-01").sum())
 
 # Contexto do torneio
