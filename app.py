@@ -28,7 +28,8 @@ with st.spinner("Carregando dados e rodando simulações..."):
 # Contexto do torneio
 m26           = matches_raw[matches_raw["match_date"] >= "2026-01-01"]
 n_jogos_2026  = len(m26)
-data_max      = m26["match_date"].max().strftime("%Y-%m-%d") if len(m26) > 0 else "–"
+_m26_played   = m26[m26["result"] != "scheduled"]
+data_max      = _m26_played["match_date"].max().strftime("%Y-%m-%d") if len(_m26_played) > 0 else "–"
 _alive_set    = _alive_teams(matches_raw) & set(TEAMS_2026)
 n_alive       = len(_alive_set)
 
