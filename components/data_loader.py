@@ -309,7 +309,11 @@ def run_simulation(_model, _elo_ratings, _ranking, _matches, n=N_SIMULACOES, see
 
     for _ in range(n):
         bracket = _make_bracket(teams, n_byes, bracket_size)
-        phase_idx = 0  # 0=quartas, 1=semi, 2=final, 3=campeao
+        # Alinha ao estágio atual: bracket_size=16→0, 8→1, 4→2.
+        # phase_idx=0 só é correto quando n_alive=16 (simulação começa na R16).
+        # Para bracket menor, as primeiras fases já foram disputadas e o
+        # contador deve começar na fase correspondente ao próximo milestone.
+        phase_idx = max(0, 5 - bracket_size.bit_length())
 
         while len(bracket) > 1:
             proxima = []

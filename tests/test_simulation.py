@@ -123,3 +123,77 @@ def test_prever_neutral_symmetry_real_model(t1: str, t2: str) -> None:
     assert abs(ph - qa) < 1e-10, f"{t1}x{t2}: P({t1} vence) home={ph:.6f} away={qa:.6f}"
     assert abs(pd - qd) < 1e-10, f"{t1}x{t2}: P(empate) {pd:.6f} vs {qd:.6f}"
     assert abs(ph + pd + pa - 1.0) < 1e-6  # float32: epsilon ~1.2e-7
+
+
+# ── Testes de phase_idx ───────────────────────────────────────────────────────
+
+@pytest.mark.parametrize("bracket_size,expected_start", [
+    (16, 0),  # R16 → começa em "quartas"
+    (8,  1),  # QF  → começa em "semi"
+    (4,  2),  # SF  → começa em "final"
+    (2,  3),  # Final → champion branch dispara na 1ª rodada de qualquer forma
+])
+def test_phase_idx_start_formula(bracket_size: int, expected_start: int) -> None:
+    """A fórmula max(0, 5 - bit_length) deve alinhar ao estagio atual do torneio."""
+    assert max(0, 5 - bracket_size.bit_length()) == expected_start
+
+
+def test_phase_idx_nao_produz_final_zero_para_bracket_size_4() -> None:
+    """
+    Com 4 times (SF, bracket_size=4), os 2 vencedores da rodada 1 devem ser
+    contados em 'final', nao em 'quartas'. Antes da correcao, 'final' ficava 0.0%.
+    """
+    from itertools import combinations as _comb
+    from components.data_loader import _make_bracket, _simular_jogo, _BYE, _prever_neutral
+
+    class _FairModel:
+        def predict_proba(self, X):
+            return np.array([[0.40, 0.20, 0.40]])
+
+    teams = ["A", "B", "C", "D"]
+    bracket_size = 4
+    n_byes = 0
+    model = _FairModel()
+    elos = {t: 1500.0 for t in teams}
+
+    prob_cache = {}
+    for t1, t2 in _comb(teams, 2):
+        ph, pd_, pa = _prever_neutral(model, elos[t1], elos[t2])
+        prob_cache[(t1, t2)] = (ph, pd_, pa)
+        prob_cache[(t2, t1)] = (pa, pd_, ph)
+
+    phases = ["quartas", "semi", "final", "campeao"]
+    counts = {t: {p: 0 for p in phases} for t in teams}
+
+    np.random.seed(0)
+    N = 5_000
+    for _ in range(N):
+        bracket = _make_bracket(teams, n_byes, bracket_size)
+        phase_idx = max(0, 5 - bracket_size.bit_length())  # deve ser 2 → "final"
+        while len(bracket) > 1:
+            proxima = []
+            for i in range(0, len(bracket), 2):
+                h, a = bracket[i], bracket[i + 1]
+                ph, pd2, pa = prob_cache[(h, a)]
+                venc = h if _simular_jogo(ph, pd2, pa) == "home" else a
+                proxima.append(venc)
+            if len(proxima) == 1:
+                if proxima[0] != _BYE:
+                    counts[proxima[0]]["campeao"] += 1
+            elif phase_idx < len(phases) - 1:
+                for t in proxima:
+                    if t != _BYE:
+                        counts[t][phases[phase_idx]] += 1
+            phase_idx += 1
+            bracket = proxima
+
+    for t in teams:
+        p_quartas = counts[t]["quartas"] / N
+        p_semi    = counts[t]["semi"]    / N
+        p_final   = counts[t]["final"]   / N
+        p_campeao = counts[t]["campeao"] / N
+
+        assert p_quartas == 0.0, f"quartas deveria ser 0 para bracket_size=4, mas {t}={p_quartas:.3f}"
+        assert p_semi    == 0.0, f"semi deveria ser 0 para bracket_size=4, mas {t}={p_semi:.3f}"
+        assert abs(p_final   - 0.5)  < 0.05, f"final esperado ~50%, obtido {p_final:.3f}"
+        assert abs(p_campeao - 0.25) < 0.05, f"campeao esperado ~25%, obtido {p_campeao:.3f}"
