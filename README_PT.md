@@ -225,6 +225,16 @@ Documentadas como parte da metodologia, não como rodapé de disclaimer:
 
 ---
 
+## Melhorias recentes
+
+- Corrigida a distribuição de BYEs nas simulações Monte Carlo para garantir brackets estatisticamente uniformes.
+- Adicionados testes unitários abrangentes para geração de bracket e lógica de simulação.
+- Corrigido o mapeamento de fases do torneio para diferentes tamanhos de bracket.
+- Eliminado o viés de mando de campo em jogos do mata-mata por meio de inferência simétrica, preservando o modelo XGBoost treinado.
+- Expandida a cobertura de testes automatizados para prevenir regressões.
+
+---
+
 ## Possíveis melhorias
 
 - **Split temporal treino/teste** — Treinar nas Copas de 1930 a 2014, avaliar em 2018 e 2022

@@ -225,6 +225,16 @@ Documented as part of the methodology, not buried in a disclaimer:
 
 ---
 
+## Recent improvements
+
+- Fixed BYE assignment in Monte Carlo simulations to guarantee statistically uniform brackets.
+- Added comprehensive unit tests for bracket generation and simulation logic.
+- Corrected tournament stage mapping for different bracket sizes.
+- Eliminated home/away bias in knockout matches through symmetric inference while preserving the trained XGBoost model.
+- Expanded automated test coverage to prevent regressions.
+
+---
+
 ## Possible improvements
 
 - **Temporal train/test split** — Train on Cups 1930–2014, evaluate on 2018 and 2022 only
