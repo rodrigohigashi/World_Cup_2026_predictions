@@ -6,6 +6,7 @@ Tudo cacheado — executa apenas uma vez por sessão do Streamlit.
 import numpy as np
 import pandas as pd
 import streamlit as st
+from collections import Counter
 from itertools import combinations
 from pathlib import Path
 from sklearn.model_selection import train_test_split
@@ -133,7 +134,71 @@ def train_models(matches: pd.DataFrame):
     return xgb_model, lr_model, metrics, X_test, y_test
 
 
-# ── 4. Simulação Monte Carlo ─────────────────────────────────────────────────
+# ── 4. Detecção de out-of-distribution (OOD) ────────────────────────────────
+
+@st.cache_data
+def build_ood_detector(_booster, matches: pd.DataFrame, percentile: int = 5):
+    """
+    Constrói um detector OOD baseado em Mean Leaf Sample Count (MLSC).
+
+    Para cada previsão, conta quantas amostras de treino caem na mesma folha
+    que o ponto de teste em cada uma das 300 árvores, e calcula a média.
+    Um MLSC baixo indica região de baixa cobertura nos dados de treino
+    (extrapolação), onde o XGBoost é menos confiável.
+
+    Retorna:
+      leaf_counters : list[Counter] — contagem por (árvore, folha)
+      threshold     : float         — p{percentile} do MLSC no treino
+    """
+    df = matches.dropna(subset=FEATURES + ["result_label"]).copy()
+    X_all = df[FEATURES]
+    y_all = df["result_label"].astype(int)
+    X_train, _, y_train, _ = train_test_split(
+        X_all, y_all, test_size=0.2, random_state=42, stratify=y_all
+    )
+
+    X_train_arr = X_train.values.astype(np.float32)
+    dm_train = xgb.DMatrix(X_train_arr, feature_names=FEATURES)
+    train_leaves = _booster.predict(dm_train, pred_leaf=True)   # (n_train, n_trees)
+    n_trees = train_leaves.shape[1]
+
+    leaf_counters = [Counter(train_leaves[:, t].tolist()) for t in range(n_trees)]
+
+    n_train = len(X_train)
+    mlsc_train = np.array([
+        np.mean([leaf_counters[t][int(train_leaves[i, t])] for t in range(n_trees)])
+        for i in range(n_train)
+    ])
+    threshold = float(np.percentile(mlsc_train, percentile))
+    return leaf_counters, threshold
+
+
+def _mlsc(leaf_counters: list, booster, row_arr: list) -> float:
+    """Mean Leaf Sample Count para um ponto de teste (1 amostra)."""
+    dm = xgb.DMatrix(np.array([row_arr], dtype=np.float32), feature_names=FEATURES)
+    leaves = booster.predict(dm, pred_leaf=True)[0]
+    return float(np.mean([leaf_counters[t][int(leaves[t])] for t in range(len(leaf_counters))]))
+
+
+def _prever_neutro_hibrido(xgb_model, lr_model, leaf_counters, threshold, e1, e2):
+    """
+    Previsão neutra híbrida: avalia cada direção independentemente e usa LR
+    quando o MLSC cai abaixo do limiar de cobertura do treino.
+
+    Preserva a simetria de campo neutro — a média das duas direções garante
+    P(A vence | A-manda) + P(A vence | B-manda) / 2 = P(A vence, campo neutro).
+    """
+    booster = xgb_model.get_booster()
+    row_A = [e1, e2, e1 - e2]
+    row_B = [e2, e1, e2 - e1]
+    m_A = lr_model if _mlsc(leaf_counters, booster, row_A) < threshold else xgb_model
+    m_B = lr_model if _mlsc(leaf_counters, booster, row_B) < threshold else xgb_model
+    ph_A, pd_A, pa_A = _prever(m_A, e1, e2)
+    ph_B, pd_B, pa_B = _prever(m_B, e2, e1)
+    return (ph_A + pa_B) / 2, (pd_A + pd_B) / 2, (pa_A + ph_B) / 2
+
+
+# ── 5. Simulação Monte Carlo ─────────────────────────────────────────────────
 
 def _prever(model, e1, e2):
     X = np.array([[e1, e2, e1 - e2]])
@@ -217,13 +282,22 @@ def _make_bracket(teams: list, n_byes: int, bracket_size: int) -> list:
     return bracket
 
 
-def get_current_stage_matches(matches: pd.DataFrame, elo_ratings: dict, model) -> list:
+def get_current_stage_matches(
+    matches: pd.DataFrame,
+    elo_ratings: dict,
+    model,
+    lr_model=None,
+    ood_params=None,
+) -> list:
     """
     Returns upcoming fixtures for the current stage.
 
     Reads rows where result='scheduled' from the 2026 portion of the dataset.
     Automatically advances to the next stage as the user adds results and new
     fixture rows to wc2026_matches.csv — no code changes required.
+
+    When lr_model and ood_params=(leaf_counters, threshold) are provided,
+    uses the hybrid OOD-aware predictor for each matchup.
 
     Returns a list of dicts:
       home_team, away_team, date, date_label, stage,
@@ -237,13 +311,19 @@ def get_current_stage_matches(matches: pd.DataFrame, elo_ratings: dict, model) -
     if upcoming.empty:
         return []
 
+    use_hybrid = lr_model is not None and ood_params is not None
+
     out = []
     for _, row in upcoming.iterrows():
         h   = row["home_team_name"]
         a   = row["away_team_name"]
         eh  = elo_ratings.get(h, 1500)
         ea  = elo_ratings.get(a, 1500)
-        pw, pd_, pa = _prever_neutral(model, eh, ea)
+        if use_hybrid:
+            leaf_counters, threshold = ood_params
+            pw, pd_, pa = _prever_neutro_hibrido(model, lr_model, leaf_counters, threshold, eh, ea)
+        else:
+            pw, pd_, pa = _prever_neutral(model, eh, ea)
         dt  = row["match_date"]
         out.append({
             "home_team":  h,
@@ -261,13 +341,28 @@ def get_current_stage_matches(matches: pd.DataFrame, elo_ratings: dict, model) -
 
 
 @st.cache_data
-def run_simulation(_model, _elo_ratings, _ranking, _matches, n=N_SIMULACOES, seed=42):
+def run_simulation(
+    _model,
+    _elo_ratings,
+    _ranking,
+    _matches,
+    n=N_SIMULACOES,
+    seed=42,
+    _lr_model=None,
+    _ood_params=None,
+):
     """
     Roda n simulações do torneio e retorna:
     - prob_campea:  Series  [team → P(campeã)]
     - phase_probs:  DataFrame [team × fase → probabilidade]
+
+    Quando _lr_model e _ood_params=(leaf_counters, threshold) são fornecidos,
+    usa o preditor híbrido OOD-aware: XGBoost para pares dentro da distribuição
+    de treino, Regressão Logística quando o MLSC cai abaixo do limiar.
     """
     from components.teams_2026 import TEAMS_2026
+
+    use_hybrid = _lr_model is not None and _ood_params is not None
 
     # Seleções ainda vivas: derivadas automaticamente dos resultados no CSV.
     # Não depende de lista manual — basta adicionar jogos ao wc2026_matches.csv.
@@ -291,7 +386,11 @@ def run_simulation(_model, _elo_ratings, _ranking, _matches, n=N_SIMULACOES, see
     for t1, t2 in combinations(teams, 2):
         e1 = elo_2026.get(t1, 1500)
         e2 = elo_2026.get(t2, 1500)
-        ph, pd_, pa = _prever_neutral(_model, e1, e2)
+        if use_hybrid:
+            leaf_counters, threshold = _ood_params
+            ph, pd_, pa = _prever_neutro_hibrido(_model, _lr_model, leaf_counters, threshold, e1, e2)
+        else:
+            ph, pd_, pa = _prever_neutral(_model, e1, e2)
         prob_cache[(t1, t2)] = (ph, pd_, pa)
         prob_cache[(t2, t1)] = (pa, pd_, ph)  # simétrico por construção
 
