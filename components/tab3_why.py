@@ -3,6 +3,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 from components.flags import label, get_flag, get_flag_url, get_team_code, EMOJI_FONT
+from components.data_loader import _prever_neutral
 from components.theme import (
     BG1, BG2, BG3, GOLD, GREEN, BLUE, T1, T2, T3, BORDER,
     apply_theme, section_header_html, caption_html,
@@ -75,11 +76,10 @@ def _elo_history_chart(matches: pd.DataFrame, team: str) -> go.Figure:
 
 
 def _h2h_html(team_a: str, team_b: str, model, elo_a: float, elo_b: float) -> str:
-    X  = np.array([[elo_a, elo_b, elo_a - elo_b]])
-    p  = model.predict_proba(X)[0]
-    pw = p[0] * 100
-    pd_ = p[1] * 100
-    pa = p[2] * 100
+    _pw, _pd, _pa = _prever_neutral(model, elo_a, elo_b)
+    pw  = _pw  * 100
+    pd_ = _pd  * 100
+    pa  = _pa  * 100
     url_a = get_flag_url(team_a)
     url_b = get_flag_url(team_b)
     code_a = get_team_code(team_a)

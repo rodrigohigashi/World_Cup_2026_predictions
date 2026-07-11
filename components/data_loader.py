@@ -140,6 +140,12 @@ def _prever(model, e1, e2):
     p = model.predict_proba(X)[0]
     return p[0], p[1], p[2]  # home_win, draw, away_win
 
+def _prever_neutral(model, e1, e2):
+    """Previsão para campo neutro: média das duas direções cancela o home bias."""
+    ph, pd, pa = _prever(model, e1, e2)
+    qh, qd, qa = _prever(model, e2, e1)
+    return (ph + qa) / 2, (pd + qd) / 2, (pa + qh) / 2
+
 def _simular_jogo(ph, pd_, pa):
     r = np.random.random()
     if r < ph:
@@ -237,7 +243,7 @@ def get_current_stage_matches(matches: pd.DataFrame, elo_ratings: dict, model) -
         a   = row["away_team_name"]
         eh  = elo_ratings.get(h, 1500)
         ea  = elo_ratings.get(a, 1500)
-        pw, pd_, pa = _prever(model, eh, ea)
+        pw, pd_, pa = _prever_neutral(model, eh, ea)
         dt  = row["match_date"]
         out.append({
             "home_team":  h,
@@ -285,8 +291,9 @@ def run_simulation(_model, _elo_ratings, _ranking, _matches, n=N_SIMULACOES, see
     for t1, t2 in combinations(teams, 2):
         e1 = elo_2026.get(t1, 1500)
         e2 = elo_2026.get(t2, 1500)
-        prob_cache[(t1, t2)] = _prever(_model, e1, e2)
-        prob_cache[(t2, t1)] = _prever(_model, e2, e1)
+        ph, pd_, pa = _prever_neutral(_model, e1, e2)
+        prob_cache[(t1, t2)] = (ph, pd_, pa)
+        prob_cache[(t2, t1)] = (pa, pd_, ph)  # simétrico por construção
 
     # BYE: slot fictício que sempre perde — necessário quando n_alive não é potência de 2
     for real_team in teams:

@@ -1,12 +1,11 @@
 """
-Testes para _make_bracket em data_loader.py.
+Testes para data_loader.py.
 
-Duas propriedades verificadas:
-1. Nenhum par adjacente e BYE x BYE (previne o KeyError original).
-2. Cada time tem exatamente P = n_byes/n_alive de receber BYE (uniformidade).
-
-Se alguem reverter para o shuffle ingenuo (teams + [BYE]*n_byes), o teste
-n_alive=6 falha em ambas as propriedades.
+Propriedades verificadas:
+1. _make_bracket: nenhum par BYE x BYE (previne KeyError com 6 times).
+2. _make_bracket: P(BYE) = n_byes/n_alive para cada time (uniformidade).
+3. _prever_neutral: probabilidades invariantes a ordem das equipes (campo neutro).
+4. _prever_neutral: probabilidades somam exatamente 1.0.
 """
 import sys
 from pathlib import Path
@@ -16,7 +15,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 import numpy as np
 import pytest
 
-from components.data_loader import _BYE, _make_bracket
+from components.data_loader import _BYE, _make_bracket, _prever, _prever_neutral
 
 
 @pytest.mark.parametrize("n_alive", [4, 5, 6, 7])
@@ -62,3 +61,65 @@ def test_bye_assignment_is_uniform(n_alive: int) -> None:
             f"n_alive={n_alive} | {team}: "
             f"observado {observed_p:.3f}, esperado {expected_p:.3f}"
         )
+
+
+# ── Testes de _prever_neutral ─────────────────────────────────────────────────
+
+class _MockModel:
+    """Modelo mock com home bias forte (70% fixo para home) sem usar ELO."""
+    def predict_proba(self, X):
+        return np.array([[0.70, 0.15, 0.15]])
+
+
+def test_prever_neutral_symmetry_unit() -> None:
+    """Propriedade matematica: _prever_neutral(e1,e2) e o espelho de _prever_neutral(e2,e1)."""
+    model = _MockModel()
+    ph, pd, pa = _prever_neutral(model, 1600.0, 1500.0)
+    qh, qd, qa = _prever_neutral(model, 1500.0, 1600.0)
+
+    assert abs(ph - qa) < 1e-10, f"P(t1 vence) difere por ordem: {ph:.6f} vs {qa:.6f}"
+    assert abs(pd - qd) < 1e-10, f"P(empate) difere por ordem:   {pd:.6f} vs {qd:.6f}"
+    assert abs(pa - qh) < 1e-10, f"P(t2 vence) difere por ordem: {pa:.6f} vs {qh:.6f}"
+
+
+def test_prever_neutral_sums_to_one_unit() -> None:
+    """Probabilidades neutras devem somar 1.0."""
+    model = _MockModel()
+    for e1, e2 in [(1600.0, 1500.0), (1500.0, 1500.0), (1400.0, 1700.0)]:
+        ph, pd, pa = _prever_neutral(model, e1, e2)
+        assert abs(ph + pd + pa - 1.0) < 1e-10, (
+            f"Soma != 1 para ELOs ({e1},{e2}): {ph+pd+pa:.10f}"
+        )
+
+
+def test_prever_neutral_reduces_bias_unit() -> None:
+    """O modelo mock tem bias de +55pp. _prever_neutral deve elimina-lo."""
+    model = _MockModel()
+    ph_raw, _, pa_raw = _prever(model, 1500.0, 1500.0)
+    assert abs(ph_raw - pa_raw) > 0.50, "Mock deveria ter bias alto"
+
+    ph_n, _, pa_n = _prever_neutral(model, 1500.0, 1500.0)
+    assert abs(ph_n - pa_n) < 1e-10, (
+        f"Bias nao eliminado: home={ph_n:.4f} away={pa_n:.4f}"
+    )
+
+
+@pytest.mark.parametrize("t1,t2", [
+    ("England",   "Norway"),
+    ("Argentina", "Switzerland"),
+    ("Spain",     "France"),
+])
+def test_prever_neutral_symmetry_real_model(t1: str, t2: str) -> None:
+    """Com o modelo real e ELOs da Copa 2026, a ordem nao deve alterar P(t1 vence)."""
+    from components.data_loader import load_matches, compute_elo, train_models
+    matches_raw = load_matches()
+    matches, elo_ratings, _ = compute_elo(matches_raw)
+    model, *_ = train_models(matches)
+
+    e1, e2 = elo_ratings[t1], elo_ratings[t2]
+    ph, pd, pa = _prever_neutral(model, e1, e2)
+    qh, qd, qa = _prever_neutral(model, e2, e1)
+
+    assert abs(ph - qa) < 1e-10, f"{t1}x{t2}: P({t1} vence) home={ph:.6f} away={qa:.6f}"
+    assert abs(pd - qd) < 1e-10, f"{t1}x{t2}: P(empate) {pd:.6f} vs {qd:.6f}"
+    assert abs(ph + pd + pa - 1.0) < 1e-6  # float32: epsilon ~1.2e-7
