@@ -130,19 +130,16 @@ With 10,000 samples, the statistical error stays below 1 percentage point per te
 
 ## Current standings
 
-*Updated after QF France × Morocco · 2026-07-11 · 97 official results integrated*
+*Updated after all QF results · 2026-07-12 · 100 official results integrated*
 
-| ELO Rank | Team | ELO | Status |
-|----------|------|-----|--------|
-| 1 | Argentina | 1734 | Quarterfinals (pending) |
+| ELO Rank | Team | ELO* | Status |
+|----------|------|------|--------|
+| 1 | Argentina | 1734 | ✅ Semifinal — 3×1 Switzerland |
 | 2 | France | 1718 | ✅ Semifinal — 2×0 Morocco |
-| 7 | England | 1622 | Quarterfinals (pending) |
-| 9 | Spain | 1610 | Quarterfinals (pending) |
-| 10 | Belgium | 1607 | Quarterfinals (pending) |
-| 14 | Norway | 1560 | Quarterfinals (pending) |
-| 16 | Switzerland | 1547 | Quarterfinals (pending) |
+| 7 | England | 1622 | ✅ Semifinal — 2×1 Norway (a.e.t.) |
+| 9 | Spain | 1610 | ✅ Semifinal — 2×1 Belgium |
 
-*ELO computed across all 1,061 Men's World Cup matches (1930–2026).*
+*\*ELO shown is pre-quarterfinal; the app recomputes live after each result.*
 
 ---
 

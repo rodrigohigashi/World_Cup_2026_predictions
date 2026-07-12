@@ -130,19 +130,16 @@ Com 10.000 amostras, o erro estatístico fica abaixo de 1 ponto percentual por s
 
 ## Situação atual
 
-*Atualizado após QF France × Morocco · 2026-07-11 · 97 resultados oficiais integrados*
+*Atualizado após todos os resultados das quartas · 2026-07-12 · 100 resultados oficiais integrados*
 
-| # ELO | Seleção | ELO | Situação |
-|-------|---------|-----|----------|
-| 1 | Argentina | 1734 | Quartas (a disputar) |
+| # ELO | Seleção | ELO* | Situação |
+|-------|---------|------|----------|
+| 1 | Argentina | 1734 | ✅ Semifinal — 3×1 Switzerland |
 | 2 | France | 1718 | ✅ Semifinal — 2×0 Morocco |
-| 7 | England | 1622 | Quartas (a disputar) |
-| 9 | Spain | 1610 | Quartas (a disputar) |
-| 10 | Belgium | 1607 | Quartas (a disputar) |
-| 14 | Norway | 1560 | Quartas (a disputar) |
-| 16 | Switzerland | 1547 | Quartas (a disputar) |
+| 7 | England | 1622 | ✅ Semifinal — 2×1 Norway (após prorrogação) |
+| 9 | Spain | 1610 | ✅ Semifinal — 2×1 Belgium |
 
-*ELO calculado sobre todos os 1.061 jogos da Copa do Mundo Masculina (1930–2026).*
+*\*ELO exibido é pré-quartas; o app recalcula em tempo real após cada resultado.*
 
 ---
 
