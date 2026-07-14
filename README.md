@@ -130,14 +130,14 @@ With 10,000 samples, the statistical error stays below 1 percentage point per te
 
 ## Current standings
 
-*Updated after all QF results · 2026-07-12 · 100 official results integrated*
+*Updated after SF1 Spain × France · 2026-07-14 · 101 official results integrated*
 
 | ELO Rank | Team | ELO* | Status |
 |----------|------|------|--------|
-| 1 | Argentina | 1734 | ✅ Semifinal — 3×1 Switzerland |
-| 2 | France | 1718 | ✅ Semifinal — 2×0 Morocco |
-| 7 | England | 1622 | ✅ Semifinal — 2×1 Norway (a.e.t.) |
-| 9 | Spain | 1610 | ✅ Semifinal — 2×1 Belgium |
+| 1 | Argentina | 1734 | ✅ Semifinal — 3×1 Switzerland (pending SF2) |
+| 7 | England | 1622 | ✅ Semifinal — 2×1 Norway (pending SF2) |
+| 9 | Spain | 1610 | ✅ **Final** — 2×0 France |
+| 2 | France | 1718 | ❌ Eliminated — SF — 0×2 Spain |
 
 *\*ELO shown is pre-quarterfinal; the app recomputes live after each result.*
 
