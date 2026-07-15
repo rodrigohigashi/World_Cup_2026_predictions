@@ -46,13 +46,13 @@ else:
 
 ranking_2026 = ranking[ranking.index.isin(TEAMS_2026)]
 
-# Times eliminados nas Quartas — aparecem no ranking com marcador de eliminação
-_qf = m26[m26["stage_name"] == "quarter-final"]
-_elim_qf = (
-    set(_qf.loc[_qf["result"] == "away team win", "home_team_name"]) |
-    set(_qf.loc[_qf["result"] == "home team win", "away_team_name"])
+# Times eliminados nas QF em diante — aparecem no ranking com marcador de eliminação
+_late_ko = m26[m26["stage_name"].isin(["quarter-final", "semi-final", "final"])]
+_elim_late = (
+    set(_late_ko.loc[_late_ko["result"] == "away team win", "home_team_name"]) |
+    set(_late_ko.loc[_late_ko["result"] == "home team win", "away_team_name"])
 ) & set(TEAMS_2026)
-eliminated_qf = sorted(_elim_qf, key=lambda t: elo_ratings.get(t, 0), reverse=True)
+eliminated_qf = sorted(_elim_late, key=lambda t: elo_ratings.get(t, 0), reverse=True)
 
 # ── Cabeçalho ────────────────────────────────────────────────────────────────
 
