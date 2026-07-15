@@ -130,13 +130,13 @@ Com 10.000 amostras, o erro estatístico fica abaixo de 1 ponto percentual por s
 
 ## Situação atual
 
-*Atualizado após SF1 Spain × France · 2026-07-14 · 101 resultados oficiais integrados*
+*Atualizado após todas as semifinais · 2026-07-15 · 102 resultados oficiais integrados*
 
 | # ELO | Seleção | ELO* | Situação |
 |-------|---------|------|----------|
-| 1 | Argentina | 1734 | ✅ Semifinal — 3×1 Switzerland (aguarda SF2) |
-| 7 | England | 1622 | ✅ Semifinal — 2×1 Norway (aguarda SF2) |
+| 1 | Argentina | 1734 | ✅ **Final** — 2×1 England |
 | 9 | Spain | 1610 | ✅ **Final** — 2×0 France |
+| 7 | England | 1622 | ❌ Eliminada — Semifinal — 1×2 Argentina |
 | 2 | France | 1718 | ❌ Eliminada — Semifinal — 0×2 Spain |
 
 *\*ELO exibido é pré-quartas; o app recalcula em tempo real após cada resultado.*
