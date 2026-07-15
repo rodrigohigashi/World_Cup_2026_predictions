@@ -284,10 +284,10 @@ def _matchup_cards_html(matchups: list) -> str:
             seen_stages.append(s)
         by_stage[s].append(m)
 
-    sections = ""
-    for idx, stage_raw in enumerate(seen_stages):
+    stage_blocks = []
+    for stage_raw in seen_stages:
         stage_label = _STAGE_LABELS.get(stage_raw, stage_raw.title()).upper()
-        mt          = "margin-top:.9rem;" if idx > 0 else ""
+        n_cards     = len(by_stage[stage_raw])
         cards       = ""
 
         for m in by_stage[stage_raw]:
@@ -391,18 +391,26 @@ def _matchup_cards_html(matchups: list) -> str:
                 f'</div>'
             )
 
-        sections += (
-            f'<div style="{mt}display:flex;align-items:center;gap:.75rem;margin-bottom:.7rem">'
+        stage_blocks.append(
+            f'<div style="flex:1;min-width:0">'
+            f'<div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.7rem">'
             f'<span style="font-size:.6rem;font-weight:800;letter-spacing:.18em;'
             f'text-transform:uppercase;color:{T3}">{stage_label}</span>'
             f'<div style="flex:1;height:1px;background:{BORDER}"></div>'
             f'</div>'
-            f'<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.55rem">'
+            f'<div style="display:grid;grid-template-columns:repeat({n_cards},1fr);gap:.55rem">'
             + cards +
+            f'</div>'
             f'</div>'
         )
 
-    return f'<div style="margin-bottom:1.5rem">{sections}</div>'
+    return (
+        f'<div style="margin-bottom:1.5rem">'
+        f'<div style="display:flex;gap:.55rem;align-items:flex-start">'
+        + "".join(stage_blocks) +
+        f'</div>'
+        f'</div>'
+    )
 
 
 # ── Ranking com tiers visuais ─────────────────────────────────────────────────
