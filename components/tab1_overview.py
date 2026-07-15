@@ -263,9 +263,10 @@ def _hero_html(team: str, prob: float, n: int,
 # ── Matchup cards ─────────────────────────────────────────────────────────────
 
 _STAGE_LABELS = {
-    "quarter-final": "Quartas de Final",
-    "semi-final":    "Semifinal",
-    "final":         "Final",
+    "quarter-final":    "Quartas de Final",
+    "semi-final":       "Semifinal",
+    "third-place match":"Terceiro Lugar",
+    "final":            "Final",
 }
 
 
@@ -273,123 +274,135 @@ def _matchup_cards_html(matchups: list) -> str:
     if not matchups:
         return ""
 
-    stage_raw   = matchups[0]["stage"]
-    stage_label = _STAGE_LABELS.get(stage_raw, stage_raw.title()).upper()
-    cards       = ""
-
+    # Group matchups by stage, preserving chronological order
+    seen_stages: list = []
+    by_stage: dict = {}
     for m in matchups:
-        h      = m["home_team"]
-        a      = m["away_team"]
-        nc_h   = get_nation_color(h)
-        nc_a   = get_nation_color(a)
-        code_h = get_team_code(h)
-        code_a = get_team_code(a)
-        ph     = m["prob_home"] * 100
-        pd_    = m["prob_draw"] * 100
-        pa     = m["prob_away"] * 100
-        date_l = m["date_label"]
-        elo_h  = m["elo_home"]
-        elo_a  = m["elo_away"]
+        s = m["stage"]
+        if s not in by_stage:
+            by_stage[s] = []
+            seen_stages.append(s)
+        by_stage[s].append(m)
 
-        url_h = get_flag_url(h)
-        url_a = get_flag_url(a)
+    sections = ""
+    for idx, stage_raw in enumerate(seen_stages):
+        stage_label = _STAGE_LABELS.get(stage_raw, stage_raw.title()).upper()
+        mt          = "margin-top:.9rem;" if idx > 0 else ""
+        cards       = ""
 
-        img_h = (
-            f'<img src="{url_h}" alt="{h}" style="width:48px;height:auto;border-radius:4px;'
-            f'display:block;margin:0 auto;box-shadow:0 3px 10px rgba(0,0,0,.45);'
-            f'border:1px solid rgba(255,255,255,.08)">'
-            if url_h else
-            f'<div style="font-size:2.2rem;line-height:1;text-align:center">{get_flag(h)}</div>'
-        )
-        img_a = (
-            f'<img src="{url_a}" alt="{a}" style="width:48px;height:auto;border-radius:4px;'
-            f'display:block;margin:0 auto;box-shadow:0 3px 10px rgba(0,0,0,.45);'
-            f'border:1px solid rgba(255,255,255,.08)">'
-            if url_a else
-            f'<div style="font-size:2.2rem;line-height:1;text-align:center">{get_flag(a)}</div>'
-        )
+        for m in by_stage[stage_raw]:
+            h      = m["home_team"]
+            a      = m["away_team"]
+            nc_h   = get_nation_color(h)
+            nc_a   = get_nation_color(a)
+            code_h = get_team_code(h)
+            code_a = get_team_code(a)
+            ph     = m["prob_home"] * 100
+            pd_    = m["prob_draw"] * 100
+            pa     = m["prob_away"] * 100
+            date_l = m["date_label"]
+            elo_h  = m["elo_home"]
+            elo_a  = m["elo_away"]
 
-        prob_bar = (
-            f'<div style="height:4px;background:{BG3};border-radius:999px;'
-            f'overflow:hidden;display:flex;margin-top:.5rem">'
-            f'<div style="width:{ph:.1f}%;background:{nc_h};height:100%"></div>'
-            f'<div style="width:{pd_:.1f}%;background:rgba(123,159,190,.18);height:100%"></div>'
-            f'<div style="width:{pa:.1f}%;background:{nc_a};height:100%"></div>'
+            url_h = get_flag_url(h)
+            url_a = get_flag_url(a)
+
+            img_h = (
+                f'<img src="{url_h}" alt="{h}" style="width:48px;height:auto;border-radius:4px;'
+                f'display:block;margin:0 auto;box-shadow:0 3px 10px rgba(0,0,0,.45);'
+                f'border:1px solid rgba(255,255,255,.08)">'
+                if url_h else
+                f'<div style="font-size:2.2rem;line-height:1;text-align:center">{get_flag(h)}</div>'
+            )
+            img_a = (
+                f'<img src="{url_a}" alt="{a}" style="width:48px;height:auto;border-radius:4px;'
+                f'display:block;margin:0 auto;box-shadow:0 3px 10px rgba(0,0,0,.45);'
+                f'border:1px solid rgba(255,255,255,.08)">'
+                if url_a else
+                f'<div style="font-size:2.2rem;line-height:1;text-align:center">{get_flag(a)}</div>'
+            )
+
+            prob_bar = (
+                f'<div style="height:4px;background:{BG3};border-radius:999px;'
+                f'overflow:hidden;display:flex;margin-top:.5rem">'
+                f'<div style="width:{ph:.1f}%;background:{nc_h};height:100%"></div>'
+                f'<div style="width:{pd_:.1f}%;background:rgba(123,159,190,.18);height:100%"></div>'
+                f'<div style="width:{pa:.1f}%;background:{nc_a};height:100%"></div>'
+                f'</div>'
+            )
+
+            diff = abs(ph - pa)
+            if diff < 10:
+                badge_text  = "Equil&iacute;brio total"
+                badge_color = T3
+                badge_bg    = "rgba(61,90,118,.18)"
+            elif diff < 25:
+                badge_text  = "Levemente favorito"
+                badge_color = T2
+                badge_bg    = "rgba(123,159,190,.1)"
+            else:
+                badge_text  = "Favorito claro"
+                badge_color = GOLD
+                badge_bg    = "rgba(201,162,39,.1)"
+
+            badge_html = (
+                f'<div style="text-align:center;margin-top:.45rem">'
+                f'<span style="font-size:.48rem;font-weight:800;letter-spacing:.1em;'
+                f'text-transform:uppercase;color:{badge_color};background:{badge_bg};'
+                f'border-radius:999px;padding:.15rem .5rem">'
+                f'{badge_text}'
+                f'</span>'
+                f'</div>'
+            )
+
+            cards += (
+                f'<div style="background:{BG1};border:1px solid {BORDER};'
+                f'border-radius:12px;overflow:hidden">'
+                f'<div style="height:3px;background:linear-gradient(90deg,{nc_h} 50%,{nc_a} 50%)"></div>'
+                f'<div style="padding:.85rem .7rem .8rem">'
+                f'<div style="font-size:.52rem;font-weight:700;letter-spacing:.1em;'
+                f'text-transform:uppercase;color:{T3};text-align:center;margin-bottom:.7rem">{date_l}</div>'
+                f'<div style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:.25rem">'
+                f'<div style="text-align:center">'
+                f'{img_h}'
+                f'<div style="font-size:.72rem;font-weight:900;letter-spacing:.04em;'
+                f'color:{T1};margin-top:.3rem">{code_h}</div>'
+                f'<div style="font-size:.55rem;color:{T3};font-variant-numeric:tabular-nums">ELO {elo_h}</div>'
+                f'</div>'
+                f'<div style="font-size:.5rem;font-weight:800;letter-spacing:.12em;color:{T2};'
+                f'text-transform:uppercase;background:{BG3};border-radius:4px;padding:.18rem .28rem">VS</div>'
+                f'<div style="text-align:center">'
+                f'{img_a}'
+                f'<div style="font-size:.72rem;font-weight:900;letter-spacing:.04em;'
+                f'color:{T1};margin-top:.3rem">{code_a}</div>'
+                f'<div style="font-size:.55rem;color:{T3};font-variant-numeric:tabular-nums">ELO {elo_a}</div>'
+                f'</div>'
+                f'</div>'
+                f'<div style="display:flex;justify-content:space-between;margin-top:.6rem">'
+                f'<span style="font-size:.68rem;font-weight:800;color:{T1};'
+                f'font-variant-numeric:tabular-nums">{ph:.0f}%</span>'
+                f'<span style="font-size:.6rem;color:{T3}">Emp {pd_:.0f}%</span>'
+                f'<span style="font-size:.68rem;font-weight:800;color:{T1};'
+                f'font-variant-numeric:tabular-nums">{pa:.0f}%</span>'
+                f'</div>'
+                + prob_bar
+                + badge_html
+                + f'</div>'
+                f'</div>'
+            )
+
+        sections += (
+            f'<div style="{mt}display:flex;align-items:center;gap:.75rem;margin-bottom:.7rem">'
+            f'<span style="font-size:.6rem;font-weight:800;letter-spacing:.18em;'
+            f'text-transform:uppercase;color:{T3}">{stage_label}</span>'
+            f'<div style="flex:1;height:1px;background:{BORDER}"></div>'
+            f'</div>'
+            f'<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.55rem">'
+            + cards +
             f'</div>'
         )
 
-        diff = abs(ph - pa)
-        if diff < 10:
-            badge_text  = "Equil&iacute;brio total"
-            badge_color = T3
-            badge_bg    = "rgba(61,90,118,.18)"
-        elif diff < 25:
-            badge_text  = "Levemente favorito"
-            badge_color = T2
-            badge_bg    = "rgba(123,159,190,.1)"
-        else:
-            badge_text  = "Favorito claro"
-            badge_color = GOLD
-            badge_bg    = "rgba(201,162,39,.1)"
-
-        badge_html = (
-            f'<div style="text-align:center;margin-top:.45rem">'
-            f'<span style="font-size:.48rem;font-weight:800;letter-spacing:.1em;'
-            f'text-transform:uppercase;color:{badge_color};background:{badge_bg};'
-            f'border-radius:999px;padding:.15rem .5rem">'
-            f'{badge_text}'
-            f'</span>'
-            f'</div>'
-        )
-
-        cards += (
-            f'<div style="background:{BG1};border:1px solid {BORDER};'
-            f'border-radius:12px;overflow:hidden">'
-            f'<div style="height:3px;background:linear-gradient(90deg,{nc_h} 50%,{nc_a} 50%)"></div>'
-            f'<div style="padding:.85rem .7rem .8rem">'
-            f'<div style="font-size:.52rem;font-weight:700;letter-spacing:.1em;'
-            f'text-transform:uppercase;color:{T3};text-align:center;margin-bottom:.7rem">{date_l}</div>'
-            f'<div style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:.25rem">'
-            f'<div style="text-align:center">'
-            f'{img_h}'
-            f'<div style="font-size:.72rem;font-weight:900;letter-spacing:.04em;'
-            f'color:{T1};margin-top:.3rem">{code_h}</div>'
-            f'<div style="font-size:.55rem;color:{T3};font-variant-numeric:tabular-nums">ELO {elo_h}</div>'
-            f'</div>'
-            f'<div style="font-size:.5rem;font-weight:800;letter-spacing:.12em;color:{T2};'
-            f'text-transform:uppercase;background:{BG3};border-radius:4px;padding:.18rem .28rem">VS</div>'
-            f'<div style="text-align:center">'
-            f'{img_a}'
-            f'<div style="font-size:.72rem;font-weight:900;letter-spacing:.04em;'
-            f'color:{T1};margin-top:.3rem">{code_a}</div>'
-            f'<div style="font-size:.55rem;color:{T3};font-variant-numeric:tabular-nums">ELO {elo_a}</div>'
-            f'</div>'
-            f'</div>'
-            f'<div style="display:flex;justify-content:space-between;margin-top:.6rem">'
-            f'<span style="font-size:.68rem;font-weight:800;color:{T1};'
-            f'font-variant-numeric:tabular-nums">{ph:.0f}%</span>'
-            f'<span style="font-size:.6rem;color:{T3}">Emp {pd_:.0f}%</span>'
-            f'<span style="font-size:.68rem;font-weight:800;color:{T1};'
-            f'font-variant-numeric:tabular-nums">{pa:.0f}%</span>'
-            f'</div>'
-            + prob_bar
-            + badge_html
-            + f'</div>'
-            f'</div>'
-        )
-
-    return (
-        f'<div style="margin-bottom:1.5rem">'
-        f'<div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.7rem">'
-        f'<span style="font-size:.6rem;font-weight:800;letter-spacing:.18em;'
-        f'text-transform:uppercase;color:{T3}">{stage_label}</span>'
-        f'<div style="flex:1;height:1px;background:{BORDER}"></div>'
-        f'</div>'
-        f'<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.55rem">'
-        + cards +
-        f'</div>'
-        f'</div>'
-    )
+    return f'<div style="margin-bottom:1.5rem">{sections}</div>'
 
 
 # ── Ranking com tiers visuais ─────────────────────────────────────────────────
