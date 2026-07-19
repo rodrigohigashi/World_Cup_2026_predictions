@@ -54,6 +54,20 @@ _elim_late = (
 ) & set(TEAMS_2026)
 eliminated_qf = sorted(_elim_late, key=lambda t: elo_ratings.get(t, 0), reverse=True)
 
+# Terceiro lugar — destaque visual no ranking
+_tp = m26[m26["stage_name"] == "third-place match"]
+_tp_played = _tp[_tp["result"] != "scheduled"]
+third_place_info = None
+if not _tp_played.empty:
+    _r = _tp_played.iloc[0]
+    if _r["result"] == "home team win":
+        _tp_team, _tp_opp = _r["home_team_name"], _r["away_team_name"]
+        _tp_score = f"{int(_r['home_team_score'])}×{int(_r['away_team_score'])}"
+    else:
+        _tp_team, _tp_opp = _r["away_team_name"], _r["home_team_name"]
+        _tp_score = f"{int(_r['away_team_score'])}×{int(_r['home_team_score'])}"
+    third_place_info = {"team": _tp_team, "score": _tp_score, "opponent": _tp_opp}
+
 # ── Cabeçalho ────────────────────────────────────────────────────────────────
 
 # Barra de contexto ao vivo
@@ -109,6 +123,7 @@ with tabs[0]:
         matchups=matchups,
         n_historico=n_historico,
         eliminated_qf=eliminated_qf,
+        third_place_info=third_place_info,
     )
 
 with tabs[1]:

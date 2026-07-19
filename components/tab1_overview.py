@@ -415,10 +415,13 @@ def _matchup_cards_html(matchups: list) -> str:
 
 # ── Ranking com tiers visuais ─────────────────────────────────────────────────
 
-_ELIM_RED = "#EF4444"
+_ELIM_RED    = "#EF4444"
+_BRONZE      = "#B87333"
+_BRONZE_BG   = "rgba(184,115,51,.13)"
 
 
-def _ranking_html(prob_campea: pd.Series, eliminated: list | None = None) -> str:
+def _ranking_html(prob_campea: pd.Series, eliminated: list | None = None,
+                  third_place: dict | None = None) -> str:
     max_p = prob_campea.iloc[0] if len(prob_campea) > 0 else 1
     rows  = ""
 
@@ -496,35 +499,59 @@ def _ranking_html(prob_campea: pd.Series, eliminated: list | None = None) -> str
             f'margin:.5rem 1rem;opacity:.35"></div>'
         )
         for team in eliminated:
-            flag_url   = get_flag_url(team)
+            is_third  = third_place is not None and team == third_place["team"]
+            flag_url  = get_flag_url(team)
             flag_emoji = get_flag(team)
-            if flag_url:
+
+            if is_third:
+                flag_el = (
+                    f'<img src="{flag_url}" alt="{team}" '
+                    f'style="width:24px;height:15px;object-fit:cover;border-radius:2px;'
+                    f'vertical-align:middle;flex-shrink:0">'
+                    if flag_url else
+                    f'<span style="font-size:.9rem;line-height:1">{flag_emoji}</span>'
+                )
+                marker  = f'<div style="font-size:.78rem;font-weight:900;color:{_BRONZE};text-align:center">3°</div>'
+                badge   = (
+                    f'<span style="font-size:.42rem;font-weight:800;letter-spacing:.08em;'
+                    f'text-transform:uppercase;color:{_BRONZE};background:{_BRONZE_BG};'
+                    f'border-radius:999px;padding:.1rem .4rem;flex-shrink:0">3º Lugar</span>'
+                    f'<span style="font-size:.42rem;font-weight:700;color:{T3};flex-shrink:0">'
+                    f'{third_place["score"]} {third_place["opponent"]}</span>'
+                )
+                name_color = T2
+                opacity    = ".8"
+            else:
                 flag_el = (
                     f'<img src="{flag_url}" alt="{team}" '
                     f'style="width:24px;height:15px;object-fit:cover;border-radius:2px;'
                     f'vertical-align:middle;flex-shrink:0;filter:grayscale(60%)">'
+                    if flag_url else
+                    f'<span style="font-size:.9rem;line-height:1;opacity:.5">{flag_emoji}</span>'
                 )
-            else:
-                flag_el = f'<span style="font-size:.9rem;line-height:1;opacity:.5">{flag_emoji}</span>'
+                marker  = f'<div style="font-size:.82rem;font-weight:900;color:{_ELIM_RED};text-align:center">✕</div>'
+                badge   = (
+                    f'<span style="font-size:.42rem;font-weight:800;letter-spacing:.08em;'
+                    f'text-transform:uppercase;color:{_ELIM_RED};'
+                    f'background:rgba(239,68,68,.12);border-radius:999px;'
+                    f'padding:.1rem .4rem;flex-shrink:0">Eliminada</span>'
+                )
+                name_color = T3
+                opacity    = ".55"
 
             rows += (
                 f'<div class="copa-row" style="display:grid;'
                 f'grid-template-columns:2.5rem 1.75rem 1fr 5rem 7rem;'
                 f'gap:.6rem;padding:.6rem 1rem;align-items:center;'
-                f'border-radius:8px;opacity:.55">'
-                f'<div style="font-size:.82rem;font-weight:900;'
-                f'color:{_ELIM_RED};text-align:center">✕</div>'
+                f'border-radius:8px;opacity:{opacity}">'
+                + marker +
                 f'<div style="display:flex;align-items:center">{flag_el}</div>'
                 f'<div style="display:flex;align-items:center;gap:.45rem;overflow:hidden">'
-                f'<span style="font-size:.9rem;font-weight:600;color:{T3};'
+                f'<span style="font-size:.9rem;font-weight:600;color:{name_color};'
                 f'white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{team}</span>'
-                f'<span style="font-size:.42rem;font-weight:800;letter-spacing:.08em;'
-                f'text-transform:uppercase;color:{_ELIM_RED};'
-                f'background:rgba(239,68,68,.12);border-radius:999px;'
-                f'padding:.1rem .4rem;flex-shrink:0">Eliminada</span>'
+                + badge +
                 f'</div>'
-                f'<div style="font-size:.88rem;font-weight:700;color:{T3};'
-                f'text-align:right">–</div>'
+                f'<div style="font-size:.88rem;font-weight:700;color:{T3};text-align:right">–</div>'
                 f'<div style="height:4px;background:{BG3};border-radius:999px"></div>'
                 f'</div>'
             )
@@ -536,7 +563,8 @@ def _ranking_html(prob_campea: pd.Series, eliminated: list | None = None) -> str
 
 def render(prob_campea: pd.Series, phase_probs: pd.DataFrame,
            n_simulacoes: int, n_alive: int, phase_name: str, data_max: str,
-           matchups=None, n_historico: int = 0, eliminated_qf: list | None = None):
+           matchups=None, n_historico: int = 0, eliminated_qf: list | None = None,
+           third_place_info: dict | None = None):
 
     top1_team = prob_campea.index[0]
     top1_prob = prob_campea.iloc[0] * 100
@@ -565,7 +593,7 @@ def render(prob_campea: pd.Series, phase_probs: pd.DataFrame,
         f"letter-spacing:.12em;font-weight:700;margin-bottom:.25rem'>Ranking &middot; Top 8</p>",
         unsafe_allow_html=True,
     )
-    st.markdown(_ranking_html(prob_campea, eliminated=eliminated_qf), unsafe_allow_html=True)
+    st.markdown(_ranking_html(prob_campea, eliminated=eliminated_qf, third_place=third_place_info), unsafe_allow_html=True)
 
     with st.expander("Ver todas as seleções"):
         full = prob_campea.reset_index()
