@@ -77,6 +77,7 @@ _tp_winner, _       = _ko_result_info(m26[m26["stage_name"] == "third-place matc
 _fn_winner, _fn_loser = _ko_result_info(m26[m26["stage_name"] == "final"])
 third_place_info = _tp_winner  # ganhador do 3º lugar
 runner_up_info   = _fn_loser   # perdedor da final = vice
+champion_info    = _fn_winner  # {"team","score","opponent"} ou None
 
 # ── Cabeçalho ────────────────────────────────────────────────────────────────
 
@@ -135,6 +136,7 @@ with tabs[0]:
         eliminated_qf=eliminated_qf,
         third_place_info=third_place_info,
         runner_up_info=runner_up_info,
+        champion_info=champion_info,
     )
 
 with tabs[1]:

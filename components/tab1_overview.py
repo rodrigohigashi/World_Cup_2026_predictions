@@ -413,6 +413,92 @@ def _matchup_cards_html(matchups: list) -> str:
     )
 
 
+# ── Hero campeã ──────────────────────────────────────────────────────────────
+
+def _champion_hero_html(champion: str, score: str, opponent: str, n_historico: int) -> str:
+    flag_url   = get_flag_url(champion)
+    flag_emoji = get_flag(champion)
+    nc         = get_nation_color(champion)
+    wash_hi    = _hex_to_rgba(nc, 0.22)
+    wash_lo    = _hex_to_rgba(nc, 0.05)
+
+    if flag_url:
+        flag_el = (
+            f'<img src="{flag_url}" alt="{champion}" '
+            f'style="width:110px;height:auto;border-radius:7px;display:block;'
+            f'box-shadow:0 8px 28px rgba(0,0,0,.55);'
+            f'border:1px solid rgba(255,255,255,.09);margin-bottom:1.2rem">'
+        )
+    else:
+        flag_el = f'<div style="font-size:5rem;line-height:1;margin-bottom:1rem">{flag_emoji}</div>'
+
+    return (
+        f'<div style="position:relative;overflow:hidden;border-radius:16px;margin-bottom:1.5rem;'
+        f'background:linear-gradient(165deg,#071529 0%,#0B1E3A 60%,#060F1C 100%);'
+        f'border:1px solid rgba(201,162,39,.35)">'
+
+        f'<div style="height:3px;background:{nc};opacity:.75"></div>'
+
+        f'<div style="position:absolute;inset:0;pointer-events:none;'
+        f'background:repeating-linear-gradient(0deg,transparent,transparent 3px,'
+        f'rgba(0,0,0,.04) 3px,rgba(0,0,0,.04) 4px)"></div>'
+
+        f'<div style="position:absolute;top:16px;left:16px;width:16px;height:16px;'
+        f'border-top:2px solid rgba(201,162,39,.55);border-left:2px solid rgba(201,162,39,.55)"></div>'
+        f'<div style="position:absolute;top:16px;right:16px;width:16px;height:16px;'
+        f'border-top:2px solid rgba(201,162,39,.55);border-right:2px solid rgba(201,162,39,.55)"></div>'
+        f'<div style="position:absolute;bottom:36px;left:16px;width:16px;height:16px;'
+        f'border-bottom:2px solid rgba(201,162,39,.55);border-left:2px solid rgba(201,162,39,.55)"></div>'
+        f'<div style="position:absolute;bottom:36px;right:16px;width:16px;height:16px;'
+        f'border-bottom:2px solid rgba(201,162,39,.55);border-right:2px solid rgba(201,162,39,.55)"></div>'
+
+        f'<div style="position:relative;display:grid;grid-template-columns:40% 60%;min-height:260px">'
+
+        # Painel esquerdo — bandeira + nome
+        f'<div style="padding:2.25rem 1.5rem 1.75rem 2rem;display:flex;flex-direction:column;'
+        f'justify-content:flex-end;border-right:1px solid rgba(255,255,255,.04);'
+        f'background:linear-gradient(135deg,{wash_hi} 0%,{wash_lo} 55%,transparent 100%)">'
+        f'<div style="font-size:.55rem;font-weight:800;letter-spacing:.22em;'
+        f'text-transform:uppercase;color:rgba(201,162,39,.5);margin-bottom:1.4rem">'
+        f'Cамpe&atilde; &nbsp;&middot;&nbsp; Copa do Mundo 2026</div>'
+        f'{flag_el}'
+        f'<div style="font-size:2.4rem;font-weight:900;letter-spacing:-.04em;'
+        f'color:{T1};line-height:1;text-transform:uppercase">{champion}</div>'
+        f'</div>'
+
+        # Painel direito — taça + placar
+        f'<div style="padding:2.25rem 2rem 1.75rem 2.25rem;display:flex;'
+        f'flex-direction:column;justify-content:center;align-items:center;gap:.9rem">'
+        f'<div style="font-size:5.5rem;line-height:1;'
+        f'filter:drop-shadow(0 0 28px rgba(201,162,39,.55))">&#x1F3C6;</div>'
+        f'<div style="text-align:center">'
+        f'<div style="font-size:.52rem;font-weight:800;letter-spacing:.18em;'
+        f'text-transform:uppercase;color:{T3};margin-bottom:.35rem">Final &nbsp;&middot;&nbsp; Placar</div>'
+        f'<div style="font-size:clamp(2.4rem,5vw,3.8rem);font-weight:900;letter-spacing:-.04em;'
+        f'background:linear-gradient(175deg,#FFE580 0%,{GOLD} 45%,#7A5200 100%);'
+        f'-webkit-background-clip:text;-webkit-text-fill-color:transparent;'
+        f'background-clip:text;font-variant-numeric:tabular-nums;line-height:1">'
+        f'{score}</div>'
+        f'<div style="font-size:.72rem;font-weight:600;color:{T2};margin-top:.3rem">'
+        f'x {opponent}</div>'
+        f'</div>'
+        f'</div>'
+
+        f'</div>'
+
+        f'<div style="position:relative;padding:.7rem 1.75rem;'
+        f'background:rgba(0,0,0,.28);border-top:1px solid rgba(255,255,255,.04);'
+        f'display:flex;align-items:center;gap:.5rem">'
+        f'<span style="width:6px;height:6px;border-radius:50%;background:{GOLD};'
+        f'display:inline-block;flex-shrink:0"></span>'
+        f'<span style="font-size:.63rem;color:rgba(237,242,255,.58);letter-spacing:.04em">'
+        f'Torneio encerrado &nbsp;&middot;&nbsp; {n_historico:,} jogos hist&oacute;ricos'
+        f'</span></div>'
+
+        f'</div>'
+    )
+
+
 # ── Ranking com tiers visuais ─────────────────────────────────────────────────
 
 _ELIM_RED    = "#EF4444"
@@ -586,7 +672,8 @@ def _ranking_html(prob_campea: pd.Series, eliminated: list | None = None,
 def render(prob_campea: pd.Series, phase_probs: pd.DataFrame,
            n_simulacoes: int, n_alive: int, phase_name: str, data_max: str,
            matchups=None, n_historico: int = 0, eliminated_qf: list | None = None,
-           third_place_info: dict | None = None, runner_up_info: dict | None = None):
+           third_place_info: dict | None = None, runner_up_info: dict | None = None,
+           champion_info: dict | None = None):
 
     top1_team = prob_campea.index[0]
     top1_prob = prob_campea.iloc[0] * 100
@@ -602,12 +689,19 @@ def render(prob_campea: pd.Series, phase_probs: pd.DataFrame,
     if matchups:
         st.markdown(_matchup_cards_html(matchups), unsafe_allow_html=True)
 
-    # 4. Hero — quem é o favorito
-    st.markdown(
-        _hero_html(top1_team, top1_prob, n_simulacoes, n_alive, phase_name, data_max,
-                   runners, n_historico=n_historico),
-        unsafe_allow_html=True,
-    )
+    # 4. Hero — campeã (torneio encerrado) ou favorita (em andamento)
+    if champion_info is not None:
+        st.markdown(
+            _champion_hero_html(champion_info["team"], champion_info["score"],
+                                champion_info["opponent"], n_historico),
+            unsafe_allow_html=True,
+        )
+    else:
+        st.markdown(
+            _hero_html(top1_team, top1_prob, n_simulacoes, n_alive, phase_name, data_max,
+                       runners, n_historico=n_historico),
+            unsafe_allow_html=True,
+        )
 
     # 5. Ranking
     st.markdown(
