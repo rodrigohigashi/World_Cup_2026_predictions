@@ -130,14 +130,14 @@ With 10,000 samples, the statistical error stays below 1 percentage point per te
 
 ## Current standings
 
-*Updated after all SF results · 2026-07-15 · 102 official results integrated*
+*Tournament concluded · 2026-07-19 · 104 official results integrated*
 
-| ELO Rank | Team | ELO* | Status |
-|----------|------|------|--------|
-| 1 | Argentina | 1734 | ✅ **Final** — 2×1 England |
-| 9 | Spain | 1610 | ✅ **Final** — 2×0 France |
-| 7 | England | 1622 | ❌ Eliminated — SF — 1×2 Argentina |
-| 2 | France | 1718 | ❌ Eliminated — SF — 0×2 Spain |
+| ELO Rank | Team | ELO* | Final standing |
+|----------|------|------|----------------|
+| 9 | **Spain** | 1610 | 🏆 **Champion** — 1×0 Argentina (a.e.t.) |
+| 1 | Argentina | 1734 | 🥈 Runner-up — 0×1 Spain (a.e.t.) |
+| 7 | England | 1622 | 🥉 3rd place — 6×4 France |
+| 2 | France | 1718 | 4th — SF — 0×2 Spain |
 
 *\*ELO shown is pre-quarterfinal; the app recomputes live after each result.*
 

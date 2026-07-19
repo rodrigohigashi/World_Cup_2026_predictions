@@ -54,19 +54,29 @@ _elim_late = (
 ) & set(TEAMS_2026)
 eliminated_qf = sorted(_elim_late, key=lambda t: elo_ratings.get(t, 0), reverse=True)
 
-# Terceiro lugar — destaque visual no ranking
-_tp = m26[m26["stage_name"] == "third-place match"]
-_tp_played = _tp[_tp["result"] != "scheduled"]
-third_place_info = None
-if not _tp_played.empty:
-    _r = _tp_played.iloc[0]
-    if _r["result"] == "home team win":
-        _tp_team, _tp_opp = _r["home_team_name"], _r["away_team_name"]
-        _tp_score = f"{int(_r['home_team_score'])}×{int(_r['away_team_score'])}"
+# Terceiro lugar e finalista — destaque visual no ranking
+def _ko_result_info(stage_df):
+    played = stage_df[stage_df["result"] != "scheduled"]
+    if played.empty:
+        return None, None
+    r = played.iloc[0]
+    if r["result"] == "home team win":
+        winner, loser = r["home_team_name"], r["away_team_name"]
+        score_w = f"{int(r['home_team_score'])}×{int(r['away_team_score'])}"
+        score_l = f"{int(r['away_team_score'])}×{int(r['home_team_score'])}"
     else:
-        _tp_team, _tp_opp = _r["away_team_name"], _r["home_team_name"]
-        _tp_score = f"{int(_r['away_team_score'])}×{int(_r['home_team_score'])}"
-    third_place_info = {"team": _tp_team, "score": _tp_score, "opponent": _tp_opp}
+        winner, loser = r["away_team_name"], r["home_team_name"]
+        score_w = f"{int(r['away_team_score'])}×{int(r['home_team_score'])}"
+        score_l = f"{int(r['home_team_score'])}×{int(r['away_team_score'])}"
+    return (
+        {"team": winner, "score": score_w, "opponent": loser},
+        {"team": loser,  "score": score_l, "opponent": winner},
+    )
+
+_tp_winner, _       = _ko_result_info(m26[m26["stage_name"] == "third-place match"])
+_fn_winner, _fn_loser = _ko_result_info(m26[m26["stage_name"] == "final"])
+third_place_info = _tp_winner  # ganhador do 3º lugar
+runner_up_info   = _fn_loser   # perdedor da final = vice
 
 # ── Cabeçalho ────────────────────────────────────────────────────────────────
 
@@ -124,6 +134,7 @@ with tabs[0]:
         n_historico=n_historico,
         eliminated_qf=eliminated_qf,
         third_place_info=third_place_info,
+        runner_up_info=runner_up_info,
     )
 
 with tabs[1]:

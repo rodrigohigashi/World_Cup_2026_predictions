@@ -130,14 +130,14 @@ Com 10.000 amostras, o erro estatístico fica abaixo de 1 ponto percentual por s
 
 ## Situação atual
 
-*Atualizado após todas as semifinais · 2026-07-15 · 102 resultados oficiais integrados*
+*Torneio encerrado · 2026-07-19 · 104 resultados oficiais integrados*
 
-| # ELO | Seleção | ELO* | Situação |
-|-------|---------|------|----------|
-| 1 | Argentina | 1734 | ✅ **Final** — 2×1 England |
-| 9 | Spain | 1610 | ✅ **Final** — 2×0 France |
-| 7 | England | 1622 | ❌ Eliminada — Semifinal — 1×2 Argentina |
-| 2 | France | 1718 | ❌ Eliminada — Semifinal — 0×2 Spain |
+| # ELO | Seleção | ELO* | Classificação final |
+|-------|---------|------|---------------------|
+| 9 | **Spain** | 1610 | 🏆 **Campeã** — 1×0 Argentina (após prorrogação) |
+| 1 | Argentina | 1734 | 🥈 Vice-campeã — 0×1 Spain (após prorrogação) |
+| 7 | England | 1622 | 🥉 3º lugar — 6×4 France |
+| 2 | France | 1718 | 4º lugar — Semifinal — 0×2 Spain |
 
 *\*ELO exibido é pré-quartas; o app recalcula em tempo real após cada resultado.*
 
